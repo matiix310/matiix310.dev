@@ -14,21 +14,21 @@ import authRoute from "@controllers/auth";
 import "./db/index";
 
 export const app = new Elysia()
-  .use(logPlugin("Main"))
-  .use(middlewarePlugin)
-  .use(curlRoute)
-  .use(downloadsRoute)
-  .use(uploadRoute)
-  .use(discordSpyRoute)
-  .use(musixRoute)
-  .use(authRoute)
-  .use(
-    staticPlugin({
-      assets: process.env.BACKEND_BASE_FOLDER! + "../frontend-cv/dist/",
-      prefix: "/",
-    })
-  )
-  .listen(process.env.PORT ?? 8000, (server) => {
-    const logger = new Logger("Start");
-    logger.log(`🦊 Elysia is running at ${server.url.href}`);
-  });
+    .use(logPlugin("Main"))
+    .use(middlewarePlugin)
+    .use(curlRoute)
+    .use(downloadsRoute)
+    .use(uploadRoute)
+    .use(discordSpyRoute)
+    .use(musixRoute)
+    .use(authRoute)
+    .use(
+        staticPlugin({
+            assets: process.env.BACKEND_BASE_FOLDER! + "../frontend-cv/dist/",
+            prefix: "/",
+        })
+    )
+    .listen(process.env.PORT ?? 8000, (server) => {
+        const logger = new Logger("Start");
+        logger.log(`🦊 Elysia is running at ${server.url.href} on port ${server.url.port}`);
+    });
