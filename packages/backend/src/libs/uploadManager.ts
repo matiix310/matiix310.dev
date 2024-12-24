@@ -1,4 +1,4 @@
-import { FileSink, nanoseconds } from "bun";
+import { file, FileSink, nanoseconds } from "bun";
 import { unlinkSync, readdirSync } from "fs";
 import { Logger } from "@libs/logPlugin";
 
@@ -19,7 +19,6 @@ export default class UploadManager {
     done: string | undefined,
     body: { data?: Blob } | undefined
   ): Promise<Response> {
-    console.log(id)
     if (!id) {
       if (!filename) {
         return new Response("No file name provided", {
@@ -43,14 +42,18 @@ export default class UploadManager {
         });
       }
 
-      if (!process.env.DOWNLOADS_FOLDER) {
+      if (!process.env.BASE_FOLDER || !process.env.DOWNLOADS_FOLDER) {
         this.logger.error("The environment variable DOWNLOADS_FOLDER is not defined!");
         return new Response("Internal Server Error", {
           status: 500,
         });
       }
 
-      if (readdirSync(process.env.DOWNLOADS_FOLDER).includes(filename)) {
+      if (
+        readdirSync(process.env.BASE_FOLDER + process.env.DOWNLOADS_FOLDER).includes(
+          filename
+        )
+      ) {
         return new Response(
           "This filename (" + filename + ") already exists on the server",
           {
@@ -62,9 +65,8 @@ export default class UploadManager {
 
       // new client
       const id = nanoseconds().toString();
-      const filePath = process.env.DOWNLOADS_FOLDER + filename;
+      const filePath = process.env.BASE_FOLDER + process.env.DOWNLOADS_FOLDER + filename;
 
-    console.log(filePath);
       this.table.set(id, {
         fileSink: Bun.file(filePath + ".temp").writer(),
         timeoutCb: this.setTimeout(id),
