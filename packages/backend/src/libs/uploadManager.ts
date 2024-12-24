@@ -19,6 +19,7 @@ export default class UploadManager {
     done: string | undefined,
     body: { data?: Blob } | undefined
   ): Promise<Response> {
+    console.log(id)
     if (!id) {
       if (!filename) {
         return new Response("No file name provided", {
