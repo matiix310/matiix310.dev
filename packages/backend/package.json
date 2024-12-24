@@ -1,0 +1,26 @@
+{
+  "name": "curl",
+  "module": "index.ts",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build --target=bun src/index.ts",
+    "start": "bun src/index.ts",
+    "test": "bun test --env-file=`if [ \"$NODE_ENV\" == \"production\" ]; then echo \".env.production\"; else echo \".env.development\"; fi`"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "drizzle-kit": "^0.21.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@elysiajs/jwt": "^1.1.1",
+    "@elysiajs/static": "^1.0.2",
+    "@elysiajs/stream": "^1.0.2",
+    "drizzle-orm": "^0.30.10",
+    "elysia": "^1.0.10",
+    "mysql2": "^3.9.7"
+  }
+}

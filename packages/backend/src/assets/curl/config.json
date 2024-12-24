@@ -1,0 +1,11 @@
+{
+  "badapple": {
+    "fps": 30
+  },
+  "piscine": {
+    "fps": 20
+  },
+  "dj": {
+    "fps": 20
+  }
+}
