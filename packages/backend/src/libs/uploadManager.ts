@@ -63,6 +63,7 @@ export default class UploadManager {
       const id = nanoseconds().toString();
       const filePath = process.env.DOWNLOADS_FOLDER + filename;
 
+    console.log(filePath);
       this.table.set(id, {
         fileSink: Bun.file(filePath + ".temp").writer(),
         timeoutCb: this.setTimeout(id),
