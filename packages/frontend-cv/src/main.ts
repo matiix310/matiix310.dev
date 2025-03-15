@@ -130,8 +130,8 @@ function runProjectsSection() {
   fadeInAnimation(projects);
 }
 
-function runTechStackSection() {
-  const techs = [...document.querySelectorAll("#techStack .techs div")];
+function runTechLanguagesSection() {
+  const techs = [...document.querySelectorAll("#techLanguages .languages div")];
   fadeInAnimation(techs);
 }
 
@@ -140,4 +140,4 @@ runCommonAnimations();
 runHomeSection();
 runAboutSection();
 runProjectsSection();
-runTechStackSection();
+runTechLanguagesSection();

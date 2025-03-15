@@ -253,7 +253,8 @@ section {
   opacity: 0;
 }
 
-#about .experience-container:nth-child(2) {
+#about .experience-container:nth-child(2),
+#about .experience-container:nth-child(3) {
   margin-left: 8vw;
 }
 
@@ -326,7 +327,7 @@ section {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2vw;
-  grid-template-rows: repeat(auto-fit, 9vw);
+  grid-template-rows: repeat(auto-fit, 10vw);
 }
 
 #projects .project {
@@ -365,9 +366,10 @@ section {
 
 #projects .project .description {
   width: 90%;
-  text-align: center;
+  text-align: left;
   font-size: 1vw;
   font-weight: 400;
+  margin: 1vw 0;
 }
 
 #projects .project .techs {
@@ -375,6 +377,7 @@ section {
   display: flex;
   align-items: center;
   justify-content: left;
+  margin-top: 0.5vw;
 }
 
 #projects .project .techs img {
@@ -399,22 +402,22 @@ section {
 }
 
 /* --------------------------- */
-/*          TECHSTACK          */
+/*       TECH LANGUAGES        */
 /* --------------------------- */
 
-#techStack {
+#techLanguages {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
 
-#techStack .section-title {
+#techLanguages .section-title {
   opacity: 0;
   transform: translateX(calc(-100% - 3vw));
 }
 
-#techStack .section-devider {
+#techLanguages .section-devider {
   position: absolute;
   left: 0;
   top: 0;
@@ -425,23 +428,24 @@ section {
   align-items: center;
 }
 
-#techStack .section-devider > p {
+#techLanguages .section-devider > p {
   flex: 2;
   margin: 0 3vw;
   font-size: 2vw;
   font-weight: 500;
 }
 
-#techStack .techs {
+#techLanguages .languages {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   margin: 0 10vw;
   justify-items: center;
   align-items: center;
+  gap: 2vw;
 }
 
-#techStack .techs div {
+#techLanguages .languages div {
   width: 6vw;
   height: 6vw;
   cursor: pointer;
@@ -449,16 +453,18 @@ section {
   opacity: 0;
 }
 
-#techStack .techs div img {
+#techLanguages .languages div img,
+#techLanguages .languages div svg {
   filter: saturate(0);
   width: 100%;
 }
 
-#techStack .techs div:hover img {
+#techLanguages .languages div:hover img,
+#techLanguages .languages div:hover svg {
   filter: saturate(1);
 }
 
-#techStack .techs div::before {
+#techLanguages .languages div::before {
   content: "";
   position: absolute;
   top: 0;
@@ -471,7 +477,7 @@ section {
   transition: 0.3s ease-in-out;
 }
 
-#techStack .techs div:hover::before {
+#techLanguages .languages div:hover::before {
   opacity: 1;
 }
 
@@ -536,7 +542,8 @@ section {
     max-height: 13vh;
   }
 
-  #about .experience-container:nth-child(2) {
+  #about .experience-container:nth-child(2),
+  #about .experience-container:nth-child(3) {
     margin-left: 0;
   }
 
@@ -585,31 +592,32 @@ section {
     );
   }
 
-  #techStack .section-devider {
+  #techLanguages .section-devider {
     top: calc(var(--topBar-height) + 30vw);
     height: calc(90vh - var(--topBar-height) - 30vw);
     flex-direction: column;
   }
 
-  #techStack .section-devider > p {
+  #techLanguages .section-devider > p {
     /* flex: 1; */
     font-size: 4.5vw;
     font-weight: 400;
   }
 
-  #techStack .techs {
+  #techLanguages .languages {
     flex: 1;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     margin-bottom: 5vh;
+    gap: 5px;
   }
 
-  #techStack .techs div {
+  #techLanguages .languages div {
     width: 15vw;
     height: 15vw;
   }
 
-  #techStack .techs div::before {
+  #techLanguages .languages div::before {
     background: radial-gradient(80vw circle at 90% 90%, var(--color) 0, transparent 100%);
   }
 }
