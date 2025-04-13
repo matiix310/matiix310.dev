@@ -11,8 +11,6 @@ import discordSpyRoute from "@controllers/discordSpy";
 import musixRoute from "@controllers/musix";
 import authRoute from "@controllers/auth";
 
-import "./db/index";
-
 export const app = new Elysia()
     .use(logPlugin("Main"))
     .use(middlewarePlugin)
@@ -26,6 +24,7 @@ export const app = new Elysia()
         staticPlugin({
             assets: process.env.BACKEND_BASE_FOLDER! + "../frontend-cv/dist/",
             prefix: "/",
+            alwaysStatic: false
         })
     )
     .listen(process.env.PORT ?? 8000, (server) => {

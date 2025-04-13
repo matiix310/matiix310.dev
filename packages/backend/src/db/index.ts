@@ -1,11 +1,26 @@
-import { drizzle } from "drizzle-orm/mysql2";
+import {drizzle} from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 
-export const poolConnection = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
+import * as curl from './schema/curl'
+import * as avalonDevices from './schema/avalonDevices'
+import * as avalonFcmTokens from './schema/avalonFcmTokens'
+import * as avalonAuthPermissions from './schema/avalonAuthPermissions.ts'
 
-export const db = drizzle(poolConnection);
+const connection = await mysql.createConnection({
+    host: Bun.env.DB_HOST,
+    user: Bun.env.DB_USER,
+    password: Bun.env.DB_PASSWORD,
+    database: Bun.env.DB_NAME,
+})
+
+export const db = drizzle(
+    {
+        client: connection,
+        mode: 'default',
+        schema: {
+            ...curl,
+            ...avalonDevices,
+            ...avalonFcmTokens,
+            ...avalonAuthPermissions
+        }
+    });

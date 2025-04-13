@@ -2,8 +2,7 @@ import Elysia from "elysia";
 import Stream from "@libs/stream";
 import fs from "fs";
 import { CurlModules } from "@libs/curlModules";
-import logPlugin, { Logger } from "@libs/logPlugin";
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import logPlugin from "@libs/logPlugin";
 
 type ConfigType = {
   [key: string]: {
@@ -19,7 +18,7 @@ export default new Elysia({ name: "curl", prefix: "/curl" })
   }))
   .get(
     "/:resourceId",
-    async ({ request, params: { resourceId }, query, curlModules }) => {
+    async function* ({ request, params: { resourceId }, query, curlModules }) {
       // TODO: Use BDD
       const config: ConfigType = await Bun.file("./src/assets/curl/config.json").json();
       if (!config[resourceId]) {
@@ -34,34 +33,23 @@ export default new Elysia({ name: "curl", prefix: "/curl" })
 
       folder.sort();
 
-      const stream = new Stream(undefined, { rowData: true });
-
       let frameIndex = 0;
       let frameCount = folder.length;
 
-      const sendFrame = async () => {
+      const interval = 1000 / config[resourceId].fps;
+
+      while (1)
+      {
         const frame = await Bun.file(
           "./src/assets/curl/" + resourceId + "/" + folder[frameIndex]
         ).text();
 
         const newFrame = curlModules.applyModules(frame, frameIndex, frameCount, query);
 
-        stream.send("\x1b[2J\x1b[3J\x1b[H" + newFrame);
-        // request.signal.aborted;
         frameIndex = (frameIndex + 1) % frameCount;
-      };
+        yield "\x1b[2J\x1b[3J\x1b[H" + newFrame;
 
-      const interval = setInterval(() => {
-        sendFrame();
-      }, 1000 / config[resourceId].fps);
-
-      sendFrame();
-
-      request.signal.addEventListener("abort", () => {
-        clearInterval(interval);
-        stream.close();
-      });
-
-      return stream;
+        await new Promise(resolve => { setTimeout(resolve, interval); });
+      }
     }
   );

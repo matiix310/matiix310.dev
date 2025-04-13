@@ -1,12 +1,15 @@
 {
   "name": "matiix310.dev",
   "version": "1.0.0",
-  "workspaces": [
-    "packages/*"
-  ],
-  "type": "module",
   "scripts": {
     "build": "bun --filter 'frontend-*' build",
     "start": "cd packages/backend && bun start && cd ../../"
-  }
+  },
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "trustedDependencies": [
+    "protobufjs"
+  ]
 }

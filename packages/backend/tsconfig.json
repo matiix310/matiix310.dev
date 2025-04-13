@@ -22,7 +22,8 @@
       "@controllers/*": ["./src/controllers/*"],
       "@libs/*": ["./src/libs/*"],
       "@assets/*": ["./src/assets/*"],
-      "@types/*": ["./src/types/*"]
+      "@types/*": ["./src/types/*"],
+      "@db/*": ["./src/db/*"]
     }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "src/db/**/*.ts"]
