@@ -9,7 +9,7 @@ export default new Elysia({ name: "upload", prefix: "/upload" })
     ...decorators,
   }))
   .post("/", ({ body, headers, uploadManager }) => {
-    if (!headers["x-key"] || headers["x-key"] != "MySecretKey") {
+    if (!headers["x-key"] || headers["x-key"] != process.env.UPLOAD_KEY) {
       return new Response("Invalid key!", { status: 401 });
     }
 
