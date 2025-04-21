@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1738189999970,
+      "tag": "0000_nervous_nico_minoru",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1738190704049,
+      "tag": "0001_quick_tomas",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1738199629263,
+      "tag": "0002_daffy_mister_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1738241767572,
+      "tag": "0003_medical_hellcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1738244452709,
+      "tag": "0004_wonderful_ender_wiggin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1738253173894,
+      "tag": "0005_empty_corsair",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1738259344787,
+      "tag": "0006_glamorous_stryfe",
+      "breakpoints": true
+    }
+  ]
+}

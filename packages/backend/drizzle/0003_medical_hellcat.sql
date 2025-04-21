@@ -1,0 +1,1 @@
+ALTER TABLE `avalon_devices` MODIFY COLUMN `kind` enum('laptop','phone');
