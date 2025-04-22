@@ -43,6 +43,13 @@ RUN cd /tmp/prod/ && bun install --frozen-lockfile --production
 
 # TODO: faire pour que les tests puissent être run en mode "dev"
 
+# frontend build
+FROM base AS frontend
+COPY packages packages
+COPY --from=install /tmp/dev/node_modules node_modules
+COPY package.json bun.lockb .
+RUN bun run build
+
 # copy node_modules from tmp directory
 # then copy all (non-ignored) project files into the image
 FROM base AS prerelease
@@ -58,6 +65,7 @@ ENV NODE_ENV=production
 FROM base AS release
 RUN mkdir backend
 COPY --from=install /tmp/prod/node_modules backend/node_modules
+COPY --from=frontend /usr/src/app/frontend-builds/. .
 COPY --from=prerelease /usr/src/app/backend/src backend/src
 COPY --from=prerelease /usr/src/app/backend/cert backend/cert
 COPY --from=prerelease /usr/src/app/backend/drizzle backend/drizzle
@@ -66,7 +74,6 @@ COPY --from=prerelease /usr/src/app/backend/run.sh backend/run.sh
 COPY --from=prerelease /usr/src/app/backend/package.json backend/package.json
 COPY --from=prerelease /usr/src/app/backend/tsconfig.json backend/tsconfig.json
 COPY --from=prerelease /usr/src/app/backend/secrets /usr/src/app/backend/secrets
-COPY frontend-builds/. .
 
 # run the app
 USER bun
