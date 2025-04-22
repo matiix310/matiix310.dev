@@ -1,0 +1,51 @@
+services:
+  # Use root/example as user/password credentials
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    networks:
+      - matiix310-dev-backend
+
+  db:
+    image: mysql:lts
+    restart: unless-stopped
+    env_file: "db.env"
+    environment:
+      MYSQL_DATABASE: website
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      - matiix310-dev-backend
+
+  bun-web-server:
+    image: bun-web-server
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    env_file: "backend.env"
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    # command: bun run --cwd backend/ src/index.ts
+    networks:
+      - matiix310-dev-backend
+    develop:
+      watch:
+        - action: sync
+          path: ../packages/backend/src
+          target: /usr/src/app/backend/src
+    depends_on:
+      - db
+    volumes:
+      - downloads:/usr/downloads
+      - keys:/usr/keys
+
+volumes:
+  keys:
+  downloads:
+  mysql:
+
+networks:
+  matiix310-dev-backend:
