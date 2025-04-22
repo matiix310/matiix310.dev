@@ -55,7 +55,6 @@ RUN bun run build
 FROM base AS prerelease
 COPY packages/backend backend
 COPY --from=install /tmp/dev/node_modules backend/node_modules
-COPY frontend-builds/. .
 
 # Test
 ENV NODE_ENV=production
