@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./logs.module.css";
 
-import Loader from "@/components/Loader";
+import Loader from "../Loader";
 
 type Log = {
   deviceName: string;
