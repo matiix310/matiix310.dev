@@ -1,0 +1,10 @@
+.propositions {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 130%;
+}
+
+.selected {
+  background-color: var(--grey);
+}

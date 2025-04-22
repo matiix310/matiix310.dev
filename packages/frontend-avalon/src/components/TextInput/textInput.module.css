@@ -1,0 +1,14 @@
+.container {
+  width: fit-content;
+}
+
+.input {
+  all: unset;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom ease-in-out 0.3s;
+}
+
+.input:focus,
+.input:hover {
+  border-bottom: 1px solid var(--grey);
+}
