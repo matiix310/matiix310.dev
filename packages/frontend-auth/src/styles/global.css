@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+/* @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap'); */
 
 :root {
   font-family: "Roboto", sans-serif;
@@ -20,6 +21,7 @@
   --hover: #96969629;
 
   --red: #d20000;
+  --green: #349d00;
 }
 
 * {
@@ -29,36 +31,6 @@
 
 body {
   background-color: var(--black);
-}
-
-.background {
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  user-select: none;
-}
-
-#section1Mouse img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-#section1Mouse {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  mask-repeat: no-repeat;
-  mask-image: radial-gradient(circle, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0) 70%);
 }
 
 .center {
