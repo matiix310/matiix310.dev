@@ -1,9 +1,9 @@
-import { Logger } from "@libs/logPlugin";
+import { Logger } from "@plugins/logPlugin";
 import { CanBeError } from "matiix";
 import { db } from "@db/index.ts";
 import { eq } from "drizzle-orm";
 import { avalonDevices } from "@db/schema/avalonDevices.ts";
-import { avalonAuthPermissions } from "@db/schema/avalonAuthPermissions.ts";
+import { avalonAuthPermissions } from "@db/schema/avalonAuthPermissions";
 import { avalonFcmTokens } from "@db/schema/avalonFcmTokens.ts";
 import { initializeApp } from "firebase-admin/app";
 import { getMessaging, type Message } from "firebase-admin/messaging";
@@ -47,16 +47,16 @@ export default class Avalon {
     // Tell the phones to authorize the session
     db.select({
       fcmToken: avalonFcmTokens.fcmToken,
-      deviceId: avalonFcmTokens.deviceId,
+      deviceId: avalonFcmTokens.clientId,
     })
       .from(avalonDevices)
       .innerJoin(
         avalonAuthPermissions,
-        eq(avalonAuthPermissions.sourceId, avalonDevices.id)
+        eq(avalonAuthPermissions.deviceId, avalonDevices.id)
       )
       .innerJoin(
         avalonFcmTokens,
-        eq(avalonFcmTokens.deviceId, avalonAuthPermissions.destinationId)
+        eq(avalonFcmTokens.clientId, avalonAuthPermissions.clientId)
       )
       .where(eq(avalonDevices.id, sourceId))
       .then((fcmTokens) => {

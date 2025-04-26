@@ -1,5 +1,5 @@
-import Logs from "@/components/Logs";
-import DeviceMonitor from "@/components/DeviceMonitor";
+import Logs from "./components/Logs";
+import DeviceMonitor from "./components/DeviceMonitor";
 
 function App() {
   return (

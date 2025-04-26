@@ -3,8 +3,10 @@ import mysql from "mysql2/promise";
 
 import * as curl from "./schema/curl";
 import * as avalonDevices from "./schema/avalonDevices";
+import * as avalonClients from "./schema/avalonClients";
+import * as avalonLogs from "./schema/avalonLogs";
 import * as avalonFcmTokens from "./schema/avalonFcmTokens";
-import * as avalonAuthPermissions from "./schema/avalonAuthPermissions.ts";
+import * as avalonAuthPermissions from "./schema/avalonAuthPermissions";
 import * as auth from "./schema/auth.ts";
 
 const connection = await mysql.createConnection({
@@ -20,6 +22,8 @@ export const db = drizzle({
   schema: {
     ...curl,
     ...avalonDevices,
+    ...avalonClients,
+    ...avalonLogs,
     ...avalonFcmTokens,
     ...avalonAuthPermissions,
     ...auth,

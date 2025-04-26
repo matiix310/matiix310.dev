@@ -1,13 +1,13 @@
+import { t } from "elysia";
 import { CurlModule } from "../curlModules";
 
-export default new CurlModule(
-  "left",
-  2,
-  (data, leftOffsetRaw) => {
-    if (!leftOffsetRaw) return;
+const type = t.Number();
 
-    const offset = parseInt(leftOffsetRaw);
-
+export default {
+  queryParam: "left",
+  endPriority: 2,
+  type,
+  action: (data, offset) => {
     if (isNaN(offset) || offset <= 0 || offset > 500) return;
 
     let newFrame = "";
@@ -20,6 +20,6 @@ export default new CurlModule(
 
     data.frame = newFrame;
   },
-  "Left offset",
-  "Offset the video frame from the left border"
-);
+  title: "Left offset",
+  description: "Offset the video frame from the left border",
+} as const satisfies CurlModule<typeof type>;

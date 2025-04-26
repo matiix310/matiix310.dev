@@ -6,7 +6,8 @@ import Loader from "../Loader";
 import TextInput from "../TextInput";
 import Dropdown from "../Dropdown";
 
-import { computerPicto, laptopPicto, smartphonePicto } from "./deviceKind";
+import { laptopPicto, smartphonePicto } from "./deviceKind";
+import { TextInputRef } from "../TextInput/textInput";
 
 export type DeviceMonitorProps = {
   style: React.CSSProperties;
@@ -15,15 +16,17 @@ export type DeviceMonitorProps = {
 type Device = {
   id: string;
   name: string;
-  kind: "phone" | "laptop" | "computer";
+  kind: "phone" | "laptop";
   fcmToken: string;
   clients: string[];
+  createdAt: string;
 };
 
 type Client = {
   id: string;
   name: string;
-  kind: "firefox-extension" | "pam";
+  kind: "web_extension" | "pam";
+  createdAt: string;
 };
 
 type Devices = Device[];
@@ -34,35 +37,35 @@ type Update = {
   updates: { [key in keyof Device]?: Device[key] };
 };
 
-const mockDevices: Devices = [
-  {
-    id: "mzdjidnzod",
-    name: "Yellow",
-    kind: "phone",
-    fcmToken: "iedoezjdzuidjzodépdédkdjéoid$ss&é_",
-    clients: ["ddzidzidn"],
-  },
-  {
-    id: "zdoadjazdlp",
-    name: "Laptop",
-    kind: "computer",
-    fcmToken: "iduzbidoezdjzodjédéé''é'",
-    clients: [],
-  },
-];
+// const mockDevices: Devices = [
+//   {
+//     id: "mzdjidnzod",
+//     name: "Yellow",
+//     kind: "phone",
+//     fcmToken: "iedoezjdzuidjzodépdédkdjéoid$ss&é_",
+//     clients: ["ddzidzidn"],
+//   },
+//   {
+//     id: "zdoadjazdlp",
+//     name: "Laptop",
+//     kind: "computer",
+//     fcmToken: "iduzbidoezdjzodjédéé''é'",
+//     clients: [],
+//   },
+// ];
 
-const mockClients: Clients = [
-  {
-    id: "ddzidzidn",
-    name: "Arch PAM",
-    kind: "pam",
-  },
-  {
-    id: "nidgrgionfrf",
-    name: "Arch extension",
-    kind: "firefox-extension",
-  },
-];
+// const mockClients: Clients = [
+//   {
+//     id: "ddzidzidn",
+//     name: "Arch PAM",
+//     kind: "pam",
+//   },
+//   {
+//     id: "nidgrgionfrf",
+//     name: "Arch extension",
+//     kind: "firefox-extension",
+//   },
+// ];
 
 const resetPicto = (
   <svg
@@ -88,14 +91,35 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
   const [updates, setUpdates] = useState<Update | null>(null);
   const [addState, setAddState] = useState(false);
 
-  const nameRef = useRef<typeof TextInput>(null);
-  const fcmTokenRef = useRef<typeof TextInput>(null);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  const nameRef = useRef<TextInputRef>(null);
+  const fcmTokenRef = useRef<TextInputRef>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setDevices(mockDevices);
-      setClients(mockClients);
-    }, 500);
+    fetch("/api/avalon/devices").then((devicesRes) => {
+      if (devicesRes.status != 200)
+        setErrorMessages((old) => [...old, "🔎 Error while fetching the devices"]);
+      else
+        devicesRes
+          .json()
+          .then(setDevices)
+          .catch((_) =>
+            setErrorMessages((old) => [...old, "👀 Error while parsing the devices"])
+          );
+    });
+
+    fetch("/api/avalon/clients").then((clientsRes) => {
+      if (clientsRes.status != 200)
+        setErrorMessages((old) => [...old, "🔎 Error while fetching the clients"]);
+      else
+        clientsRes
+          .json()
+          .then(setClients)
+          .catch((_) =>
+            setErrorMessages((old) => [...old, "👀 Error while parsing the clients"])
+          );
+    });
   }, []);
 
   const update = <T extends keyof Device>(
@@ -108,8 +132,18 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
       newUpdates = { [property]: value };
     else newUpdates = { ...updates.updates, [property]: value };
 
+    const device = devices?.find((d) => d.id == deviceId)!;
+
+    // sort updated client
+    if (newUpdates.clients) {
+      newUpdates.clients.sort();
+      device.clients.sort();
+    }
+
+    const deviceProp = device[property];
     if (
-      _.isEqual(newUpdates[property], devices?.find((d) => d.id == deviceId)![property])
+      _.isEqual(newUpdates[property], deviceProp) ||
+      (newUpdates[property] === "" && deviceProp == null)
     )
       delete newUpdates[property];
 
@@ -134,7 +168,31 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
                 {updates?.deviceId == selected.id ? (
                   <div
                     onClick={() => {
-                      console.log(updates);
+                      // send updates
+                      fetch("/api/avalon/devices/" + selected.id, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(updates.updates),
+                      })
+                        .then((r) => r.json())
+                        .then((json) => {
+                          const newDevice: Device = json;
+                          const device = devices.find((d) => d.id == newDevice.id);
+
+                          if (!device) {
+                            console.error(
+                              "Response is not a device or is not found in the current device list:",
+                              json
+                            );
+                            return;
+                          }
+
+                          setDevices(
+                            devices.map((d) => (d.id == newDevice.id ? newDevice : d))
+                          );
+                          setSelected(newDevice);
+                          setUpdates(null);
+                        });
                     }}
                     className={styles.update}
                   >
@@ -173,7 +231,7 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
                       <div
                         className={styles["reset-button"]}
                         onClick={() => {
-                          nameRef.current?.setValue(selected.name);
+                          nameRef.current?.setValue(selected.name ?? "");
                           update(selected.id, "name", selected.name);
                         }}
                       >
@@ -200,7 +258,7 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
                       <div
                         className={styles["reset-button"]}
                         onClick={() => {
-                          fcmTokenRef.current?.setValue(selected.fcmToken);
+                          fcmTokenRef.current?.setValue(selected.fcmToken ?? "");
                           update(selected.id, "fcmToken", selected.fcmToken);
                         }}
                       >
@@ -291,8 +349,8 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
           <div className={styles.devices}>
             {devices.map((device) => {
               let picto = <p>{device.kind}</p>;
-              if (device.kind == "computer") picto = computerPicto;
-              else if (device.kind == "laptop") picto = laptopPicto;
+              // if (device.kind == "computer") picto = computerPicto;
+              if (device.kind == "laptop") picto = laptopPicto;
               else if (device.kind == "phone") picto = smartphonePicto;
 
               return (
@@ -315,6 +373,15 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
               );
             })}
           </div>
+        </div>
+      ) : errorMessages ? (
+        <div
+          style={{ display: "flex", flexDirection: "column" }}
+          className={styles["loader-container"]}
+        >
+          {errorMessages.map((m) => (
+            <h2 key={m}>{m}</h2>
+          ))}
         </div>
       ) : (
         <div className={styles["loader-container"]}>

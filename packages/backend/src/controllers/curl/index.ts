@@ -1,8 +1,7 @@
-import Elysia from "elysia";
-import Stream from "@libs/stream";
+import Elysia, { t } from "elysia";
 import fs from "fs";
-import { CurlModules } from "@libs/curlModules";
-import logPlugin from "@libs/logPlugin";
+import { CurlModules, CurlQueryParameters } from "@libs/curlModules";
+import logPlugin from "@plugins/logPlugin";
 
 type ConfigType = {
   [key: string]: {
@@ -10,7 +9,13 @@ type ConfigType = {
   };
 };
 
-export default new Elysia({ name: "curl", prefix: "/curl" })
+export default new Elysia({
+  name: "curl",
+  prefix: "/curl",
+  detail: {
+    tags: ["Curl"],
+  },
+})
   .use(logPlugin("Curl").prefix("decorator", "curl"))
   .decorate((decorators) => ({
     curlModules: new CurlModules(decorators.curlLogger),
@@ -18,7 +23,7 @@ export default new Elysia({ name: "curl", prefix: "/curl" })
   }))
   .get(
     "/:resourceId",
-    async function* ({ request, params: { resourceId }, query, curlModules }) {
+    async function* ({ params: { resourceId }, query, curlModules }) {
       // TODO: Use BDD
       const config: ConfigType = await Bun.file("./src/assets/curl/config.json").json();
       if (!config[resourceId]) {
@@ -38,8 +43,7 @@ export default new Elysia({ name: "curl", prefix: "/curl" })
 
       const interval = 1000 / config[resourceId].fps;
 
-      while (1)
-      {
+      while (1) {
         const frame = await Bun.file(
           "./src/assets/curl/" + resourceId + "/" + folder[frameIndex]
         ).text();
@@ -49,7 +53,12 @@ export default new Elysia({ name: "curl", prefix: "/curl" })
         frameIndex = (frameIndex + 1) % frameCount;
         yield "\x1b[2J\x1b[3J\x1b[H" + newFrame;
 
-        await new Promise(resolve => { setTimeout(resolve, interval); });
+        await new Promise((resolve) => {
+          setTimeout(resolve, interval);
+        });
       }
+    },
+    {
+      query: CurlQueryParameters,
     }
   );

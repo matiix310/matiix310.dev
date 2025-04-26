@@ -5,51 +5,16 @@ import Loader from "../Loader";
 
 type Log = {
   deviceName: string;
-  deviceID: string;
-  authName: string;
-  authID: string;
+  deviceId: string;
+  clientName: string;
+  clientId: string;
   success: boolean;
-  date: number;
+  date: string;
 };
 
 type groupedLogs = Log[][];
 
 export type LogsProps = { style: React.CSSProperties };
-
-const mockData: Log[] = [
-  {
-    deviceName: "Laptop",
-    deviceID: "IDLaptop",
-    authName: "Yellow",
-    authID: "IDYellow",
-    success: true,
-    date: Date.now(),
-  },
-  {
-    deviceName: "Laptop",
-    deviceID: "IDLaptop",
-    authName: "Yellow",
-    authID: "IDYellow",
-    success: false,
-    date: Date.now() - 1_000_000_000,
-  },
-  {
-    deviceName: "Laptop",
-    deviceID: "IDLaptop",
-    authName: "Yellow",
-    authID: "IDYellow",
-    success: true,
-    date: Date.now() - 1_000_000,
-  },
-  {
-    deviceName: "Laptop",
-    deviceID: "IDLaptop",
-    authName: "Yellow",
-    authID: "IDYellow",
-    success: true,
-    date: Date.now() - 90_000_000,
-  },
-];
 
 const allowedSvg = (
   <svg
@@ -120,31 +85,40 @@ const months = [
 const Logs = ({ style }: LogsProps) => {
   const [groupedLogs, setGroupedLogs] = useState<groupedLogs | null>(null);
 
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
   useEffect(() => {
     // fetch the logs from the api
-    setTimeout(() => {
-      // fetch the logs
-      const logs: Log[] = mockData;
-
-      // format logs
-      const groupedLogsTemp: groupedLogs = [];
-      logs.sort((a, b) => b.date - a.date);
-      let oldDate: Date | null = null;
-      for (let log of logs) {
-        // get the date
-        const date = new Date(log.date);
-        if (
-          !oldDate ||
-          date.getDate() != oldDate.getDate() ||
-          date.getMonth() != oldDate.getMonth() ||
-          date.getFullYear() != oldDate.getFullYear()
-        )
-          groupedLogsTemp.push([]);
-        groupedLogsTemp[groupedLogsTemp.length - 1].push(log);
-        oldDate = date;
-      }
-      setGroupedLogs(groupedLogsTemp);
-    }, 3000);
+    fetch("/api/avalon/logs").then((logsRes) => {
+      if (logsRes.status != 200)
+        setErrorMessages((old) => [...old, "🔎 Error while fetching the logs"]);
+      else
+        logsRes
+          .json()
+          .then((logs: Log[]) => {
+            // format logs
+            const groupedLogsTemp: groupedLogs = [];
+            logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            let oldDate: Date | null = null;
+            for (let log of logs) {
+              // get the date
+              const date = new Date(log.date);
+              if (
+                !oldDate ||
+                date.getDate() != oldDate.getDate() ||
+                date.getMonth() != oldDate.getMonth() ||
+                date.getFullYear() != oldDate.getFullYear()
+              )
+                groupedLogsTemp.push([]);
+              groupedLogsTemp[groupedLogsTemp.length - 1].push(log);
+              oldDate = date;
+            }
+            setGroupedLogs(groupedLogsTemp);
+          })
+          .catch((_) =>
+            setErrorMessages((old) => [...old, "👀 Error while parsing the logs"])
+          );
+    });
   }, []);
 
   return (
@@ -154,7 +128,7 @@ const Logs = ({ style }: LogsProps) => {
           groupedLogs.map((dailyLogs) => {
             const date = new Date(dailyLogs[0].date);
             return (
-              <div key={dailyLogs[0].date}>
+              <div key={date.getTime()}>
                 <h2 className={styles.date}>
                   {date.getDate()} {months[date.getMonth()]} {date.getFullYear()}
                 </h2>
@@ -166,7 +140,7 @@ const Logs = ({ style }: LogsProps) => {
                         {log.success ? allowedSvg : deniedSvg}
                         <p>{log.deviceName}</p>
                         {arrow}
-                        <p>{log.authName}</p>
+                        <p>{log.clientName}</p>
                       </div>
                       <div className={styles.right}>
                         <p>
@@ -179,6 +153,15 @@ const Logs = ({ style }: LogsProps) => {
               </div>
             );
           })
+        ) : errorMessages ? (
+          <div
+            style={{ display: "flex", flexDirection: "column" }}
+            className={styles["loader-container"]}
+          >
+            {errorMessages.map((m) => (
+              <h2 key={m}>{m}</h2>
+            ))}
+          </div>
         ) : (
           <div className={styles["loader-container"]}>
             <Loader />

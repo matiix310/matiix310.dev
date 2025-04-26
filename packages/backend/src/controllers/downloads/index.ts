@@ -1,4 +1,4 @@
-import logPlugin from "@libs/logPlugin";
+import logPlugin from "@plugins/logPlugin";
 import { escapeHTML } from "bun";
 import Elysia from "elysia";
 import { readdirSync } from "fs";

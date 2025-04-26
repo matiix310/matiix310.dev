@@ -4,7 +4,7 @@ import { db } from "@db/index.ts";
 import { account, session, user, verification } from "@db/schema/auth";
 import { username } from "better-auth/plugins";
 
-export const auth = betterAuth({
+const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "mysql",
     schema: {
@@ -19,3 +19,5 @@ export const auth = betterAuth({
   },
   plugins: [username()],
 });
+
+export default auth;

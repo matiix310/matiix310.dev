@@ -12,7 +12,11 @@ export type TextInputProps = {
   textInputRef?: React.Ref<HTMLInputElement>;
 };
 
-const TextInput = forwardRef(
+export type TextInputRef = {
+  setValue: React.Dispatch<React.SetStateAction<string | undefined>>;
+};
+
+const TextInput = forwardRef<TextInputRef, TextInputProps>(
   (
     {
       style,
@@ -23,7 +27,7 @@ const TextInput = forwardRef(
       onBlur,
       onKeyDown,
       textInputRef,
-    }: TextInputProps,
+    },
     ref
   ) => {
     const [value, setValue] = useState(defaultValue);

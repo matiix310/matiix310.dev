@@ -11,31 +11,31 @@ export const smartphonePicto = (
   </svg>
 );
 
-export const computerPicto = (
-  <svg width="71" height="71" viewBox="0 0 71 71" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M35.7841 62.0739V50.4072"
-      stroke="var(--white)"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M59.1174 12.4905H12.4507C10.8399 12.4905 9.53406 13.7964 9.53406 15.4072V47.4905C9.53406 49.1014 10.8399 50.4072 12.4507 50.4072H59.1174C60.7282 50.4072 62.0341 49.1014 62.0341 47.4905V15.4072C62.0341 13.7964 60.7282 12.4905 59.1174 12.4905Z"
-      stroke="var(--white)"
-      fill="none"
-      strokeWidth="5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M27.0341 62.0739H44.5341"
-      stroke="var(--white)"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// export const computerPicto = (
+//   <svg width="71" height="71" viewBox="0 0 71 71" xmlns="http://www.w3.org/2000/svg">
+//     <path
+//       d="M35.7841 62.0739V50.4072"
+//       stroke="var(--white)"
+//       strokeWidth="5"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     />
+//     <path
+//       d="M59.1174 12.4905H12.4507C10.8399 12.4905 9.53406 13.7964 9.53406 15.4072V47.4905C9.53406 49.1014 10.8399 50.4072 12.4507 50.4072H59.1174C60.7282 50.4072 62.0341 49.1014 62.0341 47.4905V15.4072C62.0341 13.7964 60.7282 12.4905 59.1174 12.4905Z"
+//       stroke="var(--white)"
+//       fill="none"
+//       strokeWidth="5"
+//       strokeLinecap="round"
+//     />
+//     <path
+//       d="M27.0341 62.0739H44.5341"
+//       stroke="var(--white)"
+//       strokeWidth="5"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     />
+//   </svg>
+// );
 
 export const laptopPicto = (
   <svg width="71" height="71" viewBox="0 0 71 71" xmlns="http://www.w3.org/2000/svg">

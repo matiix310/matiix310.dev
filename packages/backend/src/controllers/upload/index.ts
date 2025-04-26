@@ -1,4 +1,4 @@
-import logPlugin from "@libs/logPlugin";
+import logPlugin from "@plugins/logPlugin";
 import UploadManager from "@libs/uploadManager";
 import Elysia from "elysia";
 

@@ -1,0 +1,46 @@
+.login {
+  background-color: var(--black);
+  border: 2px solid var(--main);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: column;
+  width: 30vw;
+  height: 30vh;
+}
+
+.login-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: column;
+}
+
+.welcome {
+  font-size: 50px;
+}
+
+input[type="text"],
+input[type="password"] {
+  all: unset;
+  background-color: #373737;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 20px;
+  width: 100%;
+}
+
+input[type="submit"] {
+  all: unset;
+  background-color: #373737;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 20px;
+  width: 50%;
+
+  cursor: pointer;
+  text-align: center;
+}
