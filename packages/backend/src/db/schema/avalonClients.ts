@@ -2,7 +2,6 @@ import { mysqlTable, mysqlEnum, varchar, timestamp } from "drizzle-orm/mysql-cor
 import { init } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { avalonAuthPermissions } from "@db/schema/avalonAuthPermissions";
-import { avalonFcmTokens } from "@db/schema/avalonFcmTokens.ts";
 
 const cuidLength = 20;
 const cuid = init({ length: cuidLength });
@@ -12,7 +11,7 @@ export const avalonClients = mysqlTable("avalon_clients", {
     .$defaultFn(() => cuid())
     .primaryKey(),
   name: varchar("name", { length: 20 }).notNull(),
-  kind: mysqlEnum("kind", ["web_extension", "pam"]).notNull(),
+  kind: mysqlEnum("kind", ["web_extension", "pam"]).default("web_extension").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

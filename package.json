@@ -2,8 +2,8 @@
   "name": "matiix310.dev",
   "version": "1.0.0",
   "scripts": {
-    "build": "rm -rf frontend-builds && mkdir frontend-builds && bun --filter 'frontend-*' build && find packages -name 'frontend-*' -exec sh -c \"mkdir frontend-builds/\\$(basename {})\" \\; -exec sh -c \"cp -R {}/dist frontend-builds/\\$(basename {})/dist\" \\;",
-    "start": "cd packages/backend && bun start && cd ../../"
+    "build-frontend": "rm -rf frontend-builds && mkdir frontend-builds && bun --filter 'frontend-*' build && find packages -name 'frontend-*' -exec sh -c \"mkdir frontend-builds/\\$(basename {})\" \\; -exec sh -c \"cp -R {}/dist frontend-builds/\\$(basename {})/dist\" \\;",
+    "build-backend": "bun --filter 'backend' build --compile --minify-whitespace --minify-syntax --target bun --outfile server ./src/index.ts"
   },
   "type": "module",
   "workspaces": [

@@ -28,6 +28,12 @@
   border-radius: 10px;
   opacity: 0.5;
   transition: opacity ease-in-out 0.3s;
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .device.selected,
@@ -42,8 +48,18 @@
 
 .device-name {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
+  left: 100%;
+  transform-origin: center;
+  transform: translateX(-50%) rotate(-90deg);
+  opacity: 0;
+  margin-left: 10px;
+  transition: all ease-in-out 0.3s;
+}
+
+.device.selected .device-name,
+.device:hover .device-name {
+  opacity: 1;
+  margin-left: 0;
 }
 
 .tag-container {

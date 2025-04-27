@@ -121,59 +121,90 @@ export default new Elysia({
       }),
     }
   )
+  // .post(
+  //   "/devices",
+  //   async ({ body, set, avalonApiLogger }) => {
+  //     avalonApiLogger.log(`(${body.id}) requested a token update`);
+
+  //     if (!sshValidate(body.id, body.data, body.signature)) {
+  //       avalonApiLogger.log(`(${body.id}) request aborted (invalid signature)`);
+  //       set.status = 401;
+  //       return {
+  //         error: true,
+  //         message: "Invalid signature, authentication failed",
+  //       };
+  //     }
+
+  //     const fcmTokens = await db
+  //       .select()
+  //       .from(avalonFcmTokens)
+  //       .where(eq(avalonFcmTokens.deviceId, body.id))
+  //       .catch((err) => {
+  //         avalonApiLogger.error(err);
+  //       });
+
+  //     if (!fcmTokens) return;
+
+  //     let error = false;
+  //     if (fcmTokens.length == 0)
+  //       await db
+  //         .insert(avalonFcmTokens)
+  //         .values({ deviceId: body.id, fcmToken: body.data })
+  //         .catch((err) => {
+  //           error = true;
+  //           avalonApiLogger.error(err);
+  //         });
+  //     else
+  //       await db
+  //         .update(avalonFcmTokens)
+  //         .set({ fcmToken: body.data })
+  //         .where(eq(avalonFcmTokens.deviceId, body.id))
+  //         .catch((err) => {
+  //           error = true;
+  //           avalonApiLogger.error(err);
+  //         });
+
+  //     if (error) set.status = 500;
+
+  //     return { error };
+  //   },
+  //   {
+  //     body: t.Object({
+  //       id: t.String(),
+  //       data: t.String(),
+  //       signature: t.String(),
+  //     }),
+  //   }
+  // )
   .post(
     "/devices",
-    async ({ body, set, avalonApiLogger }) => {
-      avalonApiLogger.log(`(${body.id}) requested a token update`);
+    async ({ body }) => {
+      const ids = await db
+        .insert(avalonDevices)
+        .values({ name: body.name })
+        .$returningId();
 
-      if (!sshValidate(body.id, body.data, body.signature)) {
-        avalonApiLogger.log(`(${body.id}) request aborted (invalid signature)`);
-        set.status = 401;
-        return {
-          error: true,
-          message: "Invalid signature, authentication failed",
-        };
-      }
+      if (ids.length == 0) return error(400, "Can't insert the device into the database");
 
-      const fcmTokens = await db
-        .select()
-        .from(avalonFcmTokens)
-        .where(eq(avalonFcmTokens.deviceId, body.id))
-        .catch((err) => {
-          avalonApiLogger.error(err);
-        });
+      const newDevice = await getDeviceById(ids[0].id);
 
-      if (!fcmTokens) return;
+      if (!newDevice)
+        return error(400, "Can't fetch the new device after insertion into the databse");
 
-      let error = false;
-      if (fcmTokens.length == 0)
-        await db
-          .insert(avalonFcmTokens)
-          .values({ deviceId: body.id, fcmToken: body.data })
-          .catch((err) => {
-            error = true;
-            avalonApiLogger.error(err);
-          });
-      else
-        await db
-          .update(avalonFcmTokens)
-          .set({ fcmToken: body.data })
-          .where(eq(avalonFcmTokens.deviceId, body.id))
-          .catch((err) => {
-            error = true;
-            avalonApiLogger.error(err);
-          });
-
-      if (error) set.status = 500;
-
-      return { error };
+      return newDevice;
     },
     {
+      auth: true,
       body: t.Object({
-        id: t.String(),
-        data: t.String(),
-        signature: t.String(),
+        name: t.String({ minLength: 1, maxLength: 20 }),
       }),
+      response: {
+        200: "avalonDevice",
+        400: t.Union([
+          t.Literal("Can't insert the device into the database"),
+          t.Literal("Can't fetch the new device after insertion into the databse"),
+        ]),
+      },
     }
   )
   .get(
@@ -199,6 +230,37 @@ export default new Elysia({
       },
     }
   )
+  .post(
+    "/clients",
+    async ({ body }) => {
+      const ids = await db
+        .insert(avalonClients)
+        .values({ name: body.name })
+        .$returningId();
+
+      if (ids.length == 0) return error(400, "Can't insert the client into the database");
+
+      const newClient = await getClientById(ids[0].id);
+
+      if (!newClient)
+        return error(400, "Can't fetch the new client after insertion into the databse");
+
+      return newClient;
+    },
+    {
+      auth: true,
+      body: t.Object({
+        name: t.String({ minLength: 1, maxLength: 20 }),
+      }),
+      response: {
+        200: "avalonClient",
+        400: t.Union([
+          t.Literal("Can't insert the client into the database"),
+          t.Literal("Can't fetch the new client after insertion into the databse"),
+        ]),
+      },
+    }
+  )
   .get("/clients", () => getClients(), {
     auth: true,
     response: {
@@ -215,6 +277,55 @@ export default new Elysia({
     {
       auth: true,
       response: { 200: "avalonClient", 404: t.Literal("The client was not found") },
+    }
+  )
+  .post(
+    "/clients/:id",
+    async ({ params: { id }, body, avalonApiLogger }) => {
+      // check that the keys can be modified
+      const allowed = ["name", "kind"];
+      for (let key in body)
+        if (!allowed.includes(key))
+          return error(
+            400,
+            "You can only edit the following properties: [" + allowed.join(", ") + "]"
+          );
+
+      const client = await db.query.avalonClients.findFirst({
+        where: eq(avalonClients.id, id),
+      });
+
+      // client not found
+      if (!client) return error(400, "There is no clients with the provided id");
+
+      const promises = [];
+
+      if (body.name || body.kind)
+        promises.push(db.update(avalonClients).set(body).where(eq(avalonClients.id, id)));
+
+      return await Promise.all(promises)
+        .then(async (_) => {
+          const newClient = await getClientById(id);
+          if (!newClient)
+            return error(500, "After modification, there is no client with the same ID");
+
+          return newClient;
+        })
+        .catch((e) => {
+          avalonApiLogger.error(e);
+          return error(500, "Error while fetching the new client");
+        });
+    },
+    {
+      body: t.Object({
+        name: t.Optional(t.String({ minLength: 1, maxLength: 20 })),
+        kind: t.Optional(t.Union([t.Literal("web_extension"), t.Literal("pam")])),
+      }),
+      response: {
+        200: "avalonClient",
+        400: t.String(),
+        500: t.String(),
+      },
     }
   )
   .get("/devices", () => getDevices(), {

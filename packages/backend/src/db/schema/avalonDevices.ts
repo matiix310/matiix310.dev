@@ -13,7 +13,7 @@ export const avalonDevices = mysqlTable("avalon_devices", {
     .$defaultFn(() => cuid())
     .primaryKey(),
   name: varchar("name", { length: 20 }).notNull(),
-  kind: mysqlEnum("kind", ["laptop", "phone"]).notNull(),
+  kind: mysqlEnum("kind", ["laptop", "phone"]).default("phone").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

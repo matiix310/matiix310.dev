@@ -44,13 +44,15 @@ type Update = {
 //     kind: "phone",
 //     fcmToken: "iedoezjdzuidjzodépdédkdjéoid$ss&é_",
 //     clients: ["ddzidzidn"],
+//     createdAt: "coucou",
 //   },
 //   {
 //     id: "zdoadjazdlp",
 //     name: "Laptop",
-//     kind: "computer",
+//     kind: "laptop",
 //     fcmToken: "iduzbidoezdjzodjédéé''é'",
 //     clients: [],
+//     createdAt: "coucou",
 //   },
 // ];
 
@@ -59,11 +61,13 @@ type Update = {
 //     id: "ddzidzidn",
 //     name: "Arch PAM",
 //     kind: "pam",
+//     createdAt: "coucou",
 //   },
 //   {
 //     id: "nidgrgionfrf",
 //     name: "Arch extension",
-//     kind: "firefox-extension",
+//     kind: "web_extension",
+//     createdAt: "coucou",
 //   },
 // ];
 
@@ -372,6 +376,28 @@ const DeviceMonitor = ({ style }: DeviceMonitorProps) => {
                 </div>
               );
             })}
+            <div
+              className={styles.device}
+              onClick={() => {
+                const deviceName = prompt("Device name")?.trim();
+                if (!deviceName) return;
+                fetch("/api/avalon/devices", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    name: deviceName,
+                  }),
+                })
+                  .then((res) => res.json())
+                  .then((device) => {
+                    setDevices((old) => (old ? [...old, device] : [device]));
+                  })
+                  .catch((e) => console.error(e));
+              }}
+            >
+              <span style={{ fontSize: "40px" }}>+</span>
+              <span className={styles["device-name"]}>New</span>
+            </div>
           </div>
         </div>
       ) : errorMessages ? (
