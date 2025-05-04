@@ -3,7 +3,7 @@ import Elysia from "elysia";
 import betterAuthView from "@libs/auth/auth-view";
 import logPlugin from "@plugins/logPlugin";
 import authPlugin from "@libs/auth/authService";
-import auth from "@libs/auth/auth";
+// import auth from "@libs/auth/auth";
 
 export default new Elysia({
   name: "Auth route",
@@ -23,7 +23,7 @@ export default new Elysia({
     }),
     { auth: true }
   )
-  .get("/give", async () => {
+  /* .get("/give", async () => {
     return await auth.api.signUpEmail({
       asResponse: true,
       body: {
@@ -33,5 +33,5 @@ export default new Elysia({
         username: "admin",
       },
     });
-  })
+  }) */
   .all("/*", betterAuthView);
