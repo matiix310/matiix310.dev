@@ -1,13 +1,13 @@
+import { t } from "elysia";
 import { CurlModule } from "../curlModules";
 
-export default new CurlModule(
-  "top",
-  2,
-  (data, topOffsetRaw) => {
-    if (!topOffsetRaw) return;
+const type = t.Number();
 
-    const offset = parseInt(topOffsetRaw);
-
+export default {
+  queryParam: "top",
+  endPriority: 2,
+  type,
+  action: (data, offset) => {
     if (isNaN(offset) || offset <= 0 || offset > 500) return;
 
     const line = " ".repeat(data.offsetX + data.width) + "\n";
@@ -15,6 +15,6 @@ export default new CurlModule(
 
     data.offsetY += offset;
   },
-  "Top offset",
-  "Offset the video frame from the top border"
-);
+  title: "Top offset",
+  description: "Offset the video frame from the top border",
+} as const satisfies CurlModule<typeof type>;

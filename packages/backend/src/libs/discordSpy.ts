@@ -1,10 +1,30 @@
-import { DiscordAccesRepport, DiscordSpyData } from "discord-spy";
-import { CanBeError } from "matiix";
-import { Logger } from "@libs/logPlugin";
+import { Logger } from "@plugins/logPlugin";
 import { readdirSync } from "fs";
+import { Static, t, TSchema } from "elysia";
+
+export const DiscordAccessReport = t.Object({
+  date: t.Number(),
+  userAgent: t.String(),
+});
+export type DiscordAccessReport = Static<typeof DiscordAccessReport>;
+
+export const DiscordSpyData = t.Object({
+  name: t.String(),
+});
+export type DiscordSpyData = Static<typeof DiscordSpyData>;
+
+// export const CanBeError = <T extends TSchema>(T: T) =>
+//   t.Union([
+//     t.Object({ error: t.Literal(true), message: t.String() }),
+//     t.Object({ error: t.Literal(false), data: T }),
+//   ]);
+export const IsError = () => t.Object({ error: t.Literal(true), message: t.String() });
+export const IsSuccess = <T extends TSchema>(T: T) =>
+  t.Object({ error: t.Literal(false), data: T });
+export type CanBeError<T> = { error: true; message: string } | { error: false; data: T };
 
 export default class DiscordSpy {
-  private repports = new Map<string, { image: string; repport: DiscordAccesRepport[] }>();
+  private reports = new Map<string, { image: string; report: DiscordAccessReport[] }>();
   private logger;
 
   constructor(logger: Logger) {
@@ -12,7 +32,7 @@ export default class DiscordSpy {
   }
 
   addSpy(name: string, image: string): CanBeError<DiscordSpyData> {
-    if (this.repports.has(name)) {
+    if (this.reports.has(name)) {
       return {
         error: true,
         message: `The name '${name}' is already taken.`,
@@ -36,7 +56,7 @@ export default class DiscordSpy {
       };
     }
 
-    this.repports.set(name, { image, repport: [] });
+    this.reports.set(name, { image, report: [] });
     return {
       error: false,
       data: {
@@ -46,30 +66,30 @@ export default class DiscordSpy {
   }
 
   removeSpy(name: string): boolean {
-    return this.repports.delete(name);
+    return this.reports.delete(name);
   }
 
-  getSpies(): { error: boolean; data: string[] } {
-    return { error: false, data: Array.from(this.repports.keys()) };
+  getSpies(): CanBeError<string[]> {
+    return { error: false, data: Array.from(this.reports.keys()) };
   }
 
-  getReport(name: string): CanBeError<DiscordAccesRepport[]> {
-    const data = this.repports.get(name);
+  getReport(name: string): CanBeError<DiscordAccessReport[]> {
+    const data = this.reports.get(name);
 
     if (!data)
       return {
         error: true,
-        message: `There is no repport with the name '${name}'.`,
+        message: `There is no report with the name '${name}'.`,
       };
 
     return {
       error: false,
-      data: data.repport,
+      data: data.report,
     };
   }
 
   getImage(name: string): CanBeError<string> {
-    const data = this.repports.get(name);
+    const data = this.reports.get(name);
 
     if (!data)
       return {
@@ -83,7 +103,7 @@ export default class DiscordSpy {
     };
   }
 
-  repport(name: string, data: DiscordAccesRepport) {
-    this.repports.get(name)?.repport.push(data);
+  report(name: string, data: DiscordAccessReport) {
+    this.reports.get(name)?.report.push(data);
   }
 }

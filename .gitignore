@@ -183,3 +183,4 @@ logs/**
 frontend-builds
 packages/backend/secrets
 packages/backend/cert
+packages/backend/server

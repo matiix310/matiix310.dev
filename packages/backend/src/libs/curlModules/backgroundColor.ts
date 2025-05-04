@@ -1,63 +1,52 @@
+import { t } from "elysia";
 import { CurlModule } from "../curlModules";
 
-export default new CurlModule(
-  "bg",
-  1,
-  (data, color) => {
+const colorCodes = {
+  black: "\x1b[40m",
+  red: "\x1b[41m",
+  green: "\x1b[42m",
+  yellow: "\x1b[43m",
+  blue: "\x1b[44m",
+  magenta: "\x1b[45m",
+  cyan: "\x1b[46m",
+  white: "\x1b[47m",
+  bright_black: "\x1b[100m",
+  bright_red: "\x1b[101m",
+  bright_green: "\x1b[102m",
+  bright_yellow: "\x1b[103m",
+  bright_blue: "\x1b[104m",
+  bright_magenta: "\x1b[105m",
+  bright_cyan: "\x1b[106m",
+  bright_white: "\x1b[107m",
+};
+
+const type = t.Union([
+  t.Literal("black"),
+  t.Literal("red"),
+  t.Literal("green"),
+  t.Literal("yellow"),
+  t.Literal("blue"),
+  t.Literal("magenta"),
+  t.Literal("cyan"),
+  t.Literal("white"),
+  t.Literal("bright_black"),
+  t.Literal("bright_red"),
+  t.Literal("bright_green"),
+  t.Literal("bright_yellow"),
+  t.Literal("bright_blue"),
+  t.Literal("bright_magenta"),
+  t.Literal("bright_cyan"),
+  t.Literal("bright_white"),
+]);
+
+export default {
+  queryParam: "bg",
+  endPriority: 1,
+  type,
+  action: (data, color) => {
     if (!color) return;
 
-    let colorCode = "";
-
-    switch (color.toLowerCase()) {
-      case "black":
-        colorCode = "\x1b[40m";
-        break;
-      case "red":
-        colorCode = "\x1b[41m";
-        break;
-      case "green":
-        colorCode = "\x1b[42m";
-        break;
-      case "yellow":
-        colorCode = "\x1b[43m";
-        break;
-      case "blue":
-        colorCode = "\x1b[44m";
-        break;
-      case "magenta":
-        colorCode = "\x1b[45m";
-        break;
-      case "cyan":
-        colorCode = "\x1b[46m";
-        break;
-      case "white":
-        colorCode = "\x1b[47m";
-        break;
-      case "bright_black":
-        colorCode = "\x1b[100m";
-        break;
-      case "bright_red":
-        colorCode = "\x1b[101m";
-        break;
-      case "bright_green":
-        colorCode = "\x1b[102m";
-        break;
-      case "bright_yellow":
-        colorCode = "\x1b[103m";
-        break;
-      case "bright_blue":
-        colorCode = "\x1b[104m";
-        break;
-      case "bright_magenta":
-        colorCode = "\x1b[105m";
-        break;
-      case "bright_cyan":
-        colorCode = "\x1b[106m";
-        break;
-      case "bright_white":
-        colorCode = "\x1b[107m";
-        break;
-    }
+    let colorCode = colorCodes[color];
 
     let newFrame = "";
 
@@ -67,6 +56,6 @@ export default new CurlModule(
 
     data.frame = newFrame;
   },
-  "Background color",
-  "Change the color of the frame background"
-);
+  title: "Background color",
+  description: "Change the color of the frame background",
+} as const satisfies CurlModule<typeof type>;

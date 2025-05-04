@@ -23,7 +23,8 @@
       "@libs/*": ["./src/libs/*"],
       "@assets/*": ["./src/assets/*"],
       "@types/*": ["./src/types/*"],
-      "@db/*": ["./src/db/*"]
+      "@db/*": ["./src/db/*"],
+      "@plugins/*": ["./src/plugins/*"]
     }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "src/db/**/*.ts"]

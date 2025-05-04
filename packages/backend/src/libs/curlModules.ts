@@ -1,17 +1,38 @@
-import path from "path";
-import { readdirSync } from "fs";
 import { CurlModuleData } from "curl";
-import { Logger } from "@libs/logPlugin";
+import { Logger } from "@plugins/logPlugin";
+import backgroundColor from "./curlModules/backgroundColor";
+import foregroundColor from "./curlModules/foregroundColor";
+import leftOffset from "./curlModules/leftOffset";
+import progressBar from "./curlModules/progressBar";
+import topOffset from "./curlModules/topOffset";
+import { t, TSchema, type Static } from "elysia";
+
+const activeModules = [
+  backgroundColor,
+  foregroundColor,
+  leftOffset,
+  topOffset,
+  progressBar,
+];
+
+export const CurlQueryParameters = t.Object({
+  [backgroundColor.queryParam]: t.Optional(backgroundColor.type),
+  [foregroundColor.queryParam]: t.Optional(foregroundColor.type),
+  [leftOffset.queryParam]: t.Optional(leftOffset.type),
+  [topOffset.queryParam]: t.Optional(topOffset.type),
+  [progressBar.queryParam]: t.Optional(progressBar.type),
+});
+
+type CurlQueryParameters = keyof Static<typeof CurlQueryParameters>;
 
 class CurlModules {
-  private activeModules: CurlModule[] = new Array();
   private logger;
 
   applyModules(
     frame: string,
     frameIndex: number,
     frameCount: number,
-    query: { [queryParam: string]: string | undefined }
+    query: { [key in CurlQueryParameters]: string | undefined }
   ): string {
     const width = frame.indexOf("\n");
     const data: CurlModuleData = {
@@ -24,7 +45,7 @@ class CurlModules {
       offsetY: 0,
     };
 
-    for (let module of this.activeModules) {
+    for (let module of activeModules) {
       if (query[module.queryParam]) module.action(data, query[module.queryParam]);
     }
 
@@ -33,56 +54,48 @@ class CurlModules {
 
   constructor(logger: Logger) {
     this.logger = logger;
-    const folderPath = path.join(__dirname, "curlModules");
-    const folder = readdirSync(folderPath);
+    // const folderPath = path.join(__dirname, "curlModules");
+    // const folder = readdirSync(folderPath);
 
-    const modules = folder.map((fileName) => {
-      return new Promise<number>(async (resolve, _) => {
-        const modulePath = folderPath + "/" + fileName;
-        const curlModule = await import(modulePath);
+    // const modules = folder.map((fileName) => {
+    //   return new Promise<number>(async (resolve, _) => {
+    //     const modulePath = folderPath + "/" + fileName;
+    //     const curlModule = await import(modulePath);
 
-        if (!(curlModule.default instanceof CurlModule)) {
-          this.logger.warn("Curl module", fileName, "is not an instance of CurlModule!");
-          return resolve(0);
-        }
+    //     if (!(curlModule.default instanceof CurlModule)) {
+    //       this.logger.warn("Curl module", fileName, "is not an instance of CurlModule!");
+    //       return resolve(0);
+    //     }
 
-        this.activeModules.push(curlModule.default);
-        return resolve(1);
-      });
-    });
+    //     this.activeModules.push(curlModule.default);
+    //     return resolve(1);
+    //   });
+    // });
 
-    Promise.all(modules).then((e) => {
-      const success = e.reduce((acc, cv) => acc + cv);
-      const failed = e.length - success;
+    // Promise.all(modules).then((e) => {
+    //   const success = e.reduce((acc, cv) => acc + cv);
+    //   const failed = e.length - success;
 
-      if (failed > 0) this.logger.warn("Failed modules:", failed);
-      this.logger.log("Loaded modules:", success);
+    //   if (failed > 0) this.logger.warn("Failed modules:", failed);
+    //   this.logger.log("Loaded modules:", success);
 
-      this.activeModules.sort((a, b) => a.endPriority - b.endPriority);
-    });
+    //   this.activeModules.sort((a, b) => a.endPriority - b.endPriority);
+    // });
+
+    this.logger.log("Loaded modules:", activeModules.length);
+    activeModules.sort((a, b) => a.endPriority - b.endPriority);
   }
 }
 
-class CurlModule {
-  queryParam;
-  endPriority;
-  action;
-  title;
-  description;
+t.Literal("coucou");
 
-  constructor(
-    queryParam: string,
-    endPriority: number,
-    action: (data: CurlModuleData, queryContent: string | undefined) => void,
-    title: string,
-    description: string
-  ) {
-    this.queryParam = queryParam;
-    this.endPriority = endPriority;
-    this.action = action;
-    this.title = title;
-    this.description = description;
-  }
-}
+export type CurlModule<T extends TSchema> = {
+  queryParam: string;
+  endPriority: number;
+  type: T;
+  action: (data: CurlModuleData, queryContent: Static<T>) => void;
+  title: string;
+  description: string;
+};
 
-export { CurlModules, CurlModule };
+export { CurlModules };

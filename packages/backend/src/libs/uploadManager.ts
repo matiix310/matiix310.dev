@@ -1,6 +1,6 @@
 import { file, FileSink, nanoseconds } from "bun";
 import { unlinkSync, readdirSync } from "fs";
-import { Logger } from "@libs/logPlugin";
+import { Logger } from "@plugins/logPlugin";
 
 export default class UploadManager {
   private table = new Map<

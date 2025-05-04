@@ -1,9 +1,13 @@
+import { t } from "elysia";
 import { CurlModule } from "../curlModules";
 
-export default new CurlModule(
-  "progress",
-  2,
-  (data, _) => {
+const type = t.Any();
+
+export default {
+  queryParam: "progress",
+  endPriority: 2,
+  type,
+  action: (data, _) => {
     const percent = " " + Math.floor((data.frameIndex * 100) / data.frameCount) + "% ";
     const progressWidth =
       (data.frameIndex / data.frameCount) * (data.width - percent.length);
@@ -17,6 +21,6 @@ export default new CurlModule(
       "\n";
     data.frame += progressStr;
   },
-  "Progress bar",
-  "Add a progress bar at the bottom of the video"
-);
+  title: "Progress bar",
+  description: "Add a progress bar at the bottom of the video",
+} as const satisfies CurlModule<typeof type>;
