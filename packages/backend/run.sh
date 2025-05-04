@@ -7,7 +7,6 @@ set -x
 # migrate the db
 cd backend
 bunx drizzle-kit migrate
-cd ..
 
 # start the main web server
-./backend/server
+./server

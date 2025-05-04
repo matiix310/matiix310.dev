@@ -34,8 +34,8 @@ RUN chown bun:bun \
 # /tmp/dev/packages/backend
 FROM base AS install
 RUN mkdir -p /tmp/dev
-COPY package.json bun.lock /tmp/dev/
-COPY packages/ /tmp/dev/packages/
+COPY ../package.json ../bun.lock /tmp/dev/
+COPY ../packages/ /tmp/dev/packages/
 RUN cd /tmp/dev/ && bun install --frozen-lockfile && mv packages/backend .
 
 # no need to install the production dependencies because it is compiled
