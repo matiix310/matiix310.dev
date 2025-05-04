@@ -23,8 +23,8 @@ const serverConfig: { port: number; tls?: { key: BunFile; cert: BunFile } } = {
 
 if (process.env.TLS)
   serverConfig.tls = {
-    key: Bun.file("cert/key.pem"),
-    cert: Bun.file("cert/cert.pem"),
+    key: Bun.file("secrets/key.pem"),
+    cert: Bun.file("secrets/cert.pem"),
   };
 
 export const app = new Elysia()

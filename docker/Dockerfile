@@ -90,7 +90,6 @@ FROM base AS release
 RUN mkdir -p backend/src/db
 # directories
 COPY --from=frontend /usr/src/app/frontend-builds/. ./
-COPY --from=install /tmp/dev/backend/cert backend/cert
 COPY --from=install /tmp/dev/backend/drizzle backend/drizzle
 COPY --from=install /tmp/dev/backend/secrets backend/secrets
 # files
