@@ -1,1 +1,0 @@
-ALTER TABLE `avalon_fcm` MODIFY COLUMN `token` varchar(150) NOT NULL;

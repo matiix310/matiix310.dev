@@ -1,4 +1,13 @@
 services:
+  # Use root/example as user/password credentials
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    networks:
+      - matiix310-dev-db
+    ports:
+      - "8080:8080"
+
   db:
     image: mysql:lts
     restart: unless-stopped
@@ -14,7 +23,7 @@ services:
     build:
       context: ../api/
       dockerfile: ../api/Dockerfile
-      target: release
+      target: dev
     env_file: "api.env"
     restart: unless-stopped
     networks:
@@ -24,15 +33,39 @@ services:
       - db
     volumes:
       - downloads:/usr/downloads
+    develop:
+      watch:
+        - action: sync
+          path: ../api/
+          target: /usr/src/app/
+          ignore:
+            - ../api/node_modules/
+            - ../api/package.json
+            - ../api/run.sh
+        - action: rebuild
+          path: ../api/package.json
+        - action: rebuild
+          path: ../api/run.sh
 
   frontend:
     build:
       context: ../frontend/
       dockerfile: ../frontend/Dockerfile
-      target: release
+      target: dev
     restart: unless-stopped
     networks:
       - matiix310-dev-proxy
+    develop:
+      watch:
+        - action: sync
+          path: ../frontend/
+          target: /app/
+          ignore:
+            - ../frontend/node_modules/
+            - ../frontend/.next/
+            - ../frontend/package.json
+        - action: rebuild
+          path: ../frontend/package.json
 
   reverse-proxy:
     image: nginx
@@ -43,7 +76,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
     networks:
       - matiix310-dev-proxy
 

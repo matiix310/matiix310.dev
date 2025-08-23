@@ -2,7 +2,7 @@
 
 # Logs
 
-logs
+# logs
 _.log
 npm-debug.log_
 yarn-debug.log*
@@ -161,6 +161,10 @@ dist
 
 .vscode-test
 
+# Vscode
+
+.vscode
+
 # yarn v2
 
 .yarn/cache
@@ -179,7 +183,7 @@ dist
 # Custom
 downloads/**
 musics/**
-logs/**
+/logs/**
 frontend-builds
 packages/backend/secrets
 packages/backend/server

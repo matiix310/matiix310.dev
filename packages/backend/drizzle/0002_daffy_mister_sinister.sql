@@ -1,1 +1,0 @@
-ALTER TABLE `avalon_fcm` ADD CONSTRAINT `avalon_fcm_device_id_unique` UNIQUE(`device_id`);
