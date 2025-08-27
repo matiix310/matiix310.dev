@@ -1,5 +1,6 @@
 import { db } from "@db/index";
 import { avalonVault } from "@db/schema/avalonVault";
+import authService from "@libs/auth/authService";
 import { eq } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 
@@ -16,6 +17,7 @@ export default new Elysia({
   name: "Avalon Vault",
   prefix: "/vault",
 })
+  .use(authService)
   .model({
     avalonVaultEntry,
   })

@@ -9,6 +9,11 @@ import avalonLogsRoute from "./logs";
 
 import authService from "@libs/auth/authService";
 import Avalon from "@libs/avalon";
+import { db } from "@db/index";
+import { eq, or } from "drizzle-orm";
+import { avalonVault } from "@db/schema/avalonVault";
+
+import { avalonVaultEntry } from "./vault/index";
 
 export default new Elysia({
   name: "Avalon Route",
@@ -27,26 +32,54 @@ export default new Elysia({
   .use(authService)
   .get(
     "/request",
-    async ({ status, avalon, avalonLogger, apiKey }) => {
-      const clientId = apiKey.metadata!["clientId"];
-      avalonLogger.log(`(${clientId}) requested an authentication`);
-
-      return new Promise(async (resolve) => {
-        await avalon.createAuthSession(clientId, (authorized, reason) => {
-          if (!authorized) {
-            avalonLogger.error(`Authentication failed! (${reason})`);
-            resolve(status(401));
-            return;
-          }
-
-          avalonLogger.success("Authentication successful!");
-          resolve(status(200));
+    async ({ status, avalon, avalonLogger, apiKey, query: { ids } }) => {
+      if (ids !== undefined) {
+        const searchIds = ids.split(",");
+        const vaultEntries = await db.query.avalonVault.findMany({
+          where: or(...searchIds.map((id) => eq(avalonVault.id, id))),
         });
-      });
+        return vaultEntries.map((entry) => ({
+          id: entry.id,
+          kind: entry.kind,
+          content: entry.content,
+        }));
+      } else {
+        const clientId = apiKey.metadata!["clientId"];
+        avalonLogger.log(`(${clientId}) requested an authentication`);
+
+        return new Promise(async (resolve) => {
+          await avalon.createAuthSession(clientId, (authorized, reason) => {
+            if (!authorized) {
+              avalonLogger.error(`Authentication failed! (${reason})`);
+              resolve(status(401, "Unauthorized"));
+              return;
+            }
+
+            avalonLogger.success("Authentication successful!");
+            resolve(status(200, "OK"));
+          });
+        });
+      }
     },
     {
       checkPermissions: {
         avalon: ["request"],
+      },
+      query: t.Object({
+        ids: t.Optional(t.String()),
+      }),
+      response: {
+        200: t.Union([
+          t.Literal("OK"),
+          t.Array(
+            t.Object({
+              id: avalonVaultEntry.properties.id,
+              kind: avalonVaultEntry.properties.kind,
+              content: t.String(),
+            })
+          ),
+        ]),
+        401: t.Union([t.Literal("Unauthorized")]),
       },
     }
   )
@@ -68,5 +101,31 @@ export default new Elysia({
         answer: t.Boolean(),
         date: t.Number(),
       }),
+    }
+  )
+  .get(
+    "/search/:hostname",
+    async ({ params: { hostname } }) => {
+      const entries = await db.query.avalonVault.findMany({
+        columns: { id: true, uriRegex: true, kind: true },
+      });
+      return entries.filter((entry) => new RegExp(entry.uriRegex).test(hostname));
+    },
+    {
+      checkPermissions: {
+        avalon: ["request"],
+      },
+      params: t.Object({
+        hostname: t.String(),
+      }),
+      response: {
+        200: t.Array(
+          t.Object({
+            id: avalonVaultEntry.properties.id,
+            uriRegex: avalonVaultEntry.properties.uriRegex,
+            kind: avalonVaultEntry.properties.kind,
+          })
+        ),
+      },
     }
   );
