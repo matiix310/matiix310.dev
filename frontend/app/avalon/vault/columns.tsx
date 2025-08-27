@@ -5,7 +5,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import EditVaultEntry from "./EditVaultEntry";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
 import { useFetchApi } from "@/hooks/use-fetch-api";
 
 // TODO: use Zod types
@@ -15,6 +14,7 @@ export type VaultEntry = {
   uriRegex: string;
   kind: "username" | "email" | "password";
   content?: string;
+  contentVisible?: boolean;
   group: number;
   createdAt: string;
 };
@@ -46,7 +46,7 @@ export function getColumns(
       cell: ({ row }) => {
         const vaultEntry = row.original as VaultEntry;
 
-        <VaultContent vaultEntry={vaultEntry} onUpdate={onUpdate} />;
+        return <VaultContent vaultEntry={vaultEntry} onUpdate={onUpdate} />;
       },
     },
     {
@@ -81,16 +81,15 @@ const VaultContent = ({
   onUpdate: (vaultEntry: VaultEntry) => unknown;
 }) => {
   const fetchApi = useFetchApi();
-  const [visible, setVisible] = useState(false);
 
   const handleVisibilityChange = async () => {
-    if (visible) {
-      setVisible(false);
+    if (vaultEntry.contentVisible) {
+      onUpdate({ ...vaultEntry, contentVisible: false });
       return;
     }
 
     if (vaultEntry.content !== undefined) {
-      setVisible(true);
+      onUpdate({ ...vaultEntry, contentVisible: true });
       return;
     }
 
@@ -98,16 +97,17 @@ const VaultContent = ({
       if (res.status !== 200) return;
 
       const { content } = await res.json();
-      onUpdate({ ...vaultEntry, content });
-      setVisible(true);
+      onUpdate({ ...vaultEntry, content, contentVisible: true });
     });
   };
 
   return (
     <div className="flex items-center">
-      <p className="mr-1">{visible ? vaultEntry.content : "*".repeat(7)}</p>
+      <p className="mr-1">
+        {vaultEntry.contentVisible ? vaultEntry.content : "*".repeat(7)}
+      </p>
       <Button variant="ghost" onClick={handleVisibilityChange}>
-        {visible ? <EyeOff /> : <Eye />}
+        {vaultEntry.contentVisible ? <EyeOff /> : <Eye />}
       </Button>
     </div>
   );
