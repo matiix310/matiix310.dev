@@ -10,7 +10,7 @@ import * as avalonAuthPermissions from "./schema/avalonAuthPermissions";
 import * as avalonVault from "./schema/avalonVault";
 import * as auth from "./schema/auth.ts";
 
-const connection = await mysql.createConnection({
+const poolConnection = mysql.createPool({
   host: Bun.env.DB_HOST,
   user: Bun.env.DB_USER,
   password: Bun.env.DB_PASSWORD,
@@ -18,7 +18,7 @@ const connection = await mysql.createConnection({
 });
 
 export const db = drizzle({
-  client: connection,
+  client: poolConnection,
   mode: "default",
   schema: {
     ...curl,
