@@ -57,7 +57,7 @@ export default new Elysia({
       return { ...newClient, key: apiKey.key };
     },
     {
-      auth: true,
+      securedAuth: true,
       body: t.Object({
         name: t.String({ minLength: 1, maxLength: 20 }),
         kind: t.Union([t.Literal("web_extension"), t.Literal("pam")]),
@@ -100,7 +100,9 @@ export default new Elysia({
 
       // detete the api keys
       const apiKeys = await auth.api.listApiKeys({ headers });
-      const toDelete = apiKeys.filter((k) => k.metadata!["clientId"] === client.id);
+      const toDelete = apiKeys.filter(
+        (k) => k.metadata === null || k.metadata["clientId"] === client.id
+      );
 
       await Promise.allSettled(
         toDelete.map(({ id }) =>
@@ -207,7 +209,7 @@ export default new Elysia({
       return { key: newKey.key };
     },
     {
-      auth: true,
+      securedAuth: true,
       response: {
         200: t.Object({ key: t.String() }),
         404: t.Literal("The client was not found"),

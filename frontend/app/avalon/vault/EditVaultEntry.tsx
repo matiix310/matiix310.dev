@@ -124,7 +124,6 @@ export default function EditVaultEntry({
 
             fetchApi(`avalon/vault/content/${vaultEntry.id}`, async (res) => {
               if (res.status !== 200) return;
-              console.log("coucou");
               const { content } = await res.json();
               onUpdate({ ...vaultEntry, content });
               form.setValue("content", content);

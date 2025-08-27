@@ -27,8 +27,6 @@ export default function AddDevice({ availableClients, onNewDevice }: AddDevicePr
           const device = await res.json();
           setOpen(false);
           onNewDevice(device);
-        } else {
-          console.error(await res.text());
         }
       },
       {

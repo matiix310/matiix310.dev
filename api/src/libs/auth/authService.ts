@@ -74,9 +74,7 @@ export default new Elysia({ name: "Auth plugin" }).macro({
         },
       });
 
-      if (data.valid) return {};
-
-      console.log(data.error);
+      if (data.valid) return { user: session.user, session: session.session };
 
       if (data.error?.code === "INVALID_API_KEY")
         return status(403, "secured authentication key invalid");

@@ -50,7 +50,6 @@ export const columns: ColumnDef<AvalonLog>[] = [
         return createTag(MessageCircleQuestionMark, "Request", "warning");
 
       if (log.kind === "answer") {
-        console.log(row.original);
         return log.answer
           ? createTag(Check, `Accepted by ${log.device!.name}`, "success")
           : createTag(X, `Rejected by ${log.device!.name}`, "destructive");

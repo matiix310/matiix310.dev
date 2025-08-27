@@ -37,7 +37,6 @@ export default function SecuredApiDialog() {
 
   useEffect(() => {
     return SecuredContext.subscribe((onSuccessCb, onFailureCb) => {
-      console.log("coucou");
       if (open) {
         onFailure();
         return;

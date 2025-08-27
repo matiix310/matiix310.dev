@@ -62,7 +62,6 @@ export default class Avalon {
           return;
         }
 
-        console.log("coucou");
         await createLog({
           clientId: client.id,
           kind: "request",

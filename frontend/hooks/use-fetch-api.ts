@@ -14,7 +14,6 @@ class Observer {
   ) => {
     this.subscribers.push(subscriber);
     return () => {
-      console.log("OULALA LE PROBLEME");
       const index = this.subscribers.indexOf(subscriber);
       this.subscribers.splice(index, 1);
     };

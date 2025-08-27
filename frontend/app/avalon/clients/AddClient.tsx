@@ -25,8 +25,6 @@ export default function AddClient({ onNewClient }: AddClientProps) {
           const client = await res.json();
           setOpen(false);
           onNewClient(client);
-        } else {
-          console.error(await res.text());
         }
       },
       {
