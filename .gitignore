@@ -185,5 +185,4 @@ downloads/**
 musics/**
 /logs/**
 frontend-builds
-packages/backend/secrets
-packages/backend/server
+api/secrets
