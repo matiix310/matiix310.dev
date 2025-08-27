@@ -1,8 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@db/index.ts";
-import { account, session, user, verification, apikey } from "@db/schema/auth";
-import { apiKey, username } from "better-auth/plugins";
+import {
+  account,
+  session,
+  user,
+  verification,
+  apikey,
+  twoFactor as twoFactorTable,
+} from "@db/schema/auth";
+import { apiKey, username, twoFactor } from "better-auth/plugins";
 
 const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -13,6 +20,7 @@ const auth = betterAuth({
       verification,
       account,
       apikey,
+      twoFactor: twoFactorTable,
     },
   }),
   emailAndPassword: {
@@ -26,6 +34,9 @@ const auth = betterAuth({
         minExpiresIn: 0,
       },
       enableMetadata: true,
+    }),
+    twoFactor({
+      issuer: "matiix310.dev",
     }),
   ],
   trustedOrigins: ["http://localhost", "http://localhost:3000", "https://matiix310.dev"],

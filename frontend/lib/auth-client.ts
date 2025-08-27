@@ -1,8 +1,12 @@
 import { createAuthClient } from "better-auth/react";
-import { apiKeyClient, usernameClient } from "better-auth/client/plugins";
+import {
+  apiKeyClient,
+  twoFactorClient,
+  usernameClient,
+} from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   /** The base URL of the server (optional if you're using the same domain) */
   baseURL: "http://localhost",
-  plugins: [usernameClient(), apiKeyClient()],
+  plugins: [usernameClient(), apiKeyClient(), twoFactorClient()],
 });

@@ -52,7 +52,7 @@ export default new Elysia({ name: "Auth plugin" }).macro({
 
       if (!verify) return status(401);
 
-      return { user: session.user, session: session.session };
+      return { user: session.user, session: session.session, password };
     },
   },
   securedAuth: {

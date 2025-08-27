@@ -19,6 +19,9 @@ export const user = mysqlTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+
+  // 2FA plugin
+  twoFactorEnabled: boolean("two_factor_enabled"),
 });
 
 export const session = mysqlTable("session", {
@@ -85,4 +88,13 @@ export const apikey = mysqlTable("api_key", {
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull(), // The date and time the API key was updated.
   permissions: text("permissions"), // The permissions of the key.
   metadata: json("metadata"), // Any additional metadata you want to store with the key.
+});
+
+export const twoFactor = mysqlTable("two_factor", {
+  id: varchar("id", { length: 64 }).primaryKey(), // The ID of the two factor authentication.
+  userId: varchar("user_id", { length: 64 }) // The ID of the user
+    .references(() => user.id)
+    .notNull(),
+  secret: text("secret"), // The secret used to generate the TOTP code.
+  backupCodes: text("backup_codes"), // The backup codes used to recover access to the account if the user loses access to their phone or email.
 });

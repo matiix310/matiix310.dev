@@ -1,4 +1,4 @@
-import Elysia from "elysia";
+import Elysia, { t } from "elysia";
 
 import betterAuthView from "@libs/auth/auth-view";
 import logPlugin from "@plugins/logPlugin";
@@ -63,6 +63,39 @@ export default new Elysia({
     },
     {
       verifyPassword: true,
+    }
+  )
+  .post(
+    "/setup-2fa",
+    async ({ headers, password, user }) => {
+      return auth.api.enableTwoFactor({
+        body: {
+          password,
+        },
+        headers,
+        asResponse: true,
+      });
+    },
+    {
+      verifyPassword: true,
+    }
+  )
+  .post(
+    "/trigger-2fa",
+    async ({ headers, body: { code } }) => {
+      return auth.api.verifyTOTP({
+        body: {
+          code,
+        },
+        headers,
+        asResponse: true,
+      });
+    },
+    {
+      auth: true,
+      body: t.Object({
+        code: t.RegExp(/^\d{6}$/),
+      }),
     }
   )
   // .get("/give", async () => {
