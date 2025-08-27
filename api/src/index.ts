@@ -4,8 +4,7 @@ import swagger from "@elysiajs/swagger";
 import cors from "@elysiajs/cors";
 
 import logPlugin, { Logger } from "@plugins/logPlugin";
-
-import middlewarePlugin from "@libs/middlewarePlugin";
+import middlewarePlugin from "@plugins/middlewarePlugin";
 
 import curlRoute from "@controllers/curl";
 import downloadsRoute from "@controllers/downloads";
