@@ -26,6 +26,9 @@ const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  telemetry: {
+    enabled: false,
+  },
   plugins: [
     username(),
     apiKey({
@@ -39,7 +42,7 @@ const auth = betterAuth({
       issuer: "matiix310.dev",
     }),
   ],
-  trustedOrigins: ["http://localhost", "http://localhost:3000", "https://matiix310.dev"],
+  trustedOrigins: ["http://localhost:8000", "https://matiix310.dev"],
   advanced: {
     // defaultCookieAttributes: {
     //   httpOnly: true,

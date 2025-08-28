@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import EditVaultEntry from "./EditVaultEntry";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Shield } from "lucide-react";
 import { useFetchApi } from "@/hooks/use-fetch-api";
 
 // TODO: use Zod types
@@ -16,6 +16,7 @@ export type VaultEntry = {
   content?: string;
   contentVisible?: boolean;
   group: number;
+  secured: boolean;
   createdAt: string;
 };
 
@@ -52,6 +53,14 @@ export function getColumns(
     {
       accessorKey: "group",
       header: "Group",
+    },
+    {
+      accessorKey: "secured",
+      header: "Secured",
+      cell: ({ cell }) => {
+        const secured = cell.getValue() as VaultEntry["secured"];
+        return secured ? <Shield /> : <span />;
+      },
     },
     {
       accessorKey: "createdAt",

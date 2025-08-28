@@ -1,6 +1,6 @@
-FROM node:24.5.0-alpine AS base
-ENV PNPM_HOME="/pnpm" \
-    PATH="$PNPM_HOME:$PATH"
+FROM registry.hub.docker.com/library/node:24.5.0-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 WORKDIR /app

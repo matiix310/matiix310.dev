@@ -2,25 +2,17 @@ import { db } from "@db/index";
 import { avalonVault } from "@db/schema/avalonVault";
 import authService from "@libs/auth/authService";
 import { eq } from "drizzle-orm";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 
-export const avalonVaultEntry = t.Object({
-  id: t.String(),
-  name: t.String(),
-  uriRegex: t.String(),
-  kind: t.Union([t.Literal("username"), t.Literal("email"), t.Literal("password")]),
-  group: t.Number(),
-  createdAt: t.Date(),
-});
+export const avalonInsertVaultEntrySchema = createInsertSchema(avalonVault);
+export const avalonSelectVaultEntrySchema = createSelectSchema(avalonVault);
 
 export default new Elysia({
   name: "Avalon Vault",
   prefix: "/vault",
 })
   .use(authService)
-  .model({
-    avalonVaultEntry,
-  })
   .get(
     "/entry",
     async ({}) => {
@@ -31,6 +23,7 @@ export default new Elysia({
           uriRegex: true,
           kind: true,
           group: true,
+          secured: true,
           createdAt: true,
         },
       });
@@ -38,20 +31,12 @@ export default new Elysia({
     },
     {
       auth: true,
-      response: { 200: "avalonVaultEntry[]" },
+      response: { 200: t.Array(t.Omit(avalonSelectVaultEntrySchema, ["content"])) },
     }
   )
   .post(
     "/entry",
     async ({ status, body }) => {
-      const allowed = ["name", "uriRegex", "kind", "content", "group"];
-      for (let key in body)
-        if (!allowed.includes(key))
-          return status(
-            400,
-            "You can only edit the following properties: " + allowed.join(", ") + "."
-          );
-
       const ids = await db.insert(avalonVault).values(body).$returningId();
 
       if (ids.length == 0) return status(400, "Can't insert the entry into the vault");
@@ -68,16 +53,13 @@ export default new Elysia({
     {
       auth: true,
       response: {
-        200: "avalonVaultEntry",
-        400: t.String(),
+        200: avalonSelectVaultEntrySchema,
+        400: t.Union([
+          t.Literal("Can't insert the entry into the vault"),
+          t.Literal("Error while fetching the new device"),
+        ]),
       },
-      body: t.Object({
-        name: t.String(),
-        uriRegex: t.String(),
-        kind: t.Union([t.Literal("username"), t.Literal("email"), t.Literal("password")]),
-        content: t.String(),
-        group: t.Number({ minimum: 0 }),
-      }),
+      body: t.Omit(avalonInsertVaultEntrySchema, ["id", "createdAt"]),
     }
   )
   .delete(
@@ -97,7 +79,7 @@ export default new Elysia({
     {
       auth: true,
       response: {
-        200: "avalonVaultEntry",
+        200: t.Omit(avalonSelectVaultEntrySchema, ["content"]),
         404: t.Literal("The vault entry was not found"),
       },
     }
@@ -105,23 +87,12 @@ export default new Elysia({
   .post(
     "/entry/:id",
     async ({ status, params: { id }, body }) => {
-      const allowed = ["name", "uriRegex", "kind", "content", "group"];
-      for (let key in body)
-        if (!allowed.includes(key))
-          return status(
-            400,
-            "You can only edit the following properties: " + allowed.join(", ") + "."
-          );
-
-      if (Object.keys(body).length === 0)
-        return status(400, "The body must not be empty");
-
       const vaultEntry = await db.query.avalonVault.findFirst({
         where: eq(avalonVault.id, id),
       });
 
       // vaultEntry not found
-      if (!vaultEntry) return status(400, "There is no vault entry with the provided id");
+      if (!vaultEntry) return status(400, "There is no vault entry with the provided ID");
 
       await db.update(avalonVault).set(body).where(eq(avalonVault.id, id));
 
@@ -138,19 +109,11 @@ export default new Elysia({
     {
       auth: true,
       response: {
-        200: "avalonVaultEntry",
-        400: t.String(),
+        200: t.Partial(t.Omit(avalonSelectVaultEntrySchema, ["content"])),
+        400: t.Literal("There is no vault entry with the provided ID"),
         500: t.Literal("After modification, there is no device with the same ID"),
       },
-      body: t.Object({
-        name: t.Optional(t.String()),
-        uriRegex: t.Optional(t.String()),
-        kind: t.Optional(
-          t.Union([t.Literal("username"), t.Literal("email"), t.Literal("password")])
-        ),
-        content: t.Optional(t.String()),
-        group: t.Optional(t.Number({ minimum: 0 })),
-      }),
+      body: t.Omit(avalonInsertVaultEntrySchema, ["id", "createdAt"]),
     }
   )
   .get(
@@ -161,14 +124,14 @@ export default new Elysia({
         columns: { content: true },
       });
 
-      if (content === undefined) return status(400, "Unknown id");
+      if (content === undefined) return status(404, "Vault entry not found");
 
       return content;
     },
     {
       securedAuth: true,
       response: {
-        400: t.Literal("Unknown id"),
+        404: t.Literal("Vault entry not found"),
         200: t.Object({
           content: t.String(),
         }),

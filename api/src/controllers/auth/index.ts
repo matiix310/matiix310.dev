@@ -98,15 +98,4 @@ export default new Elysia({
       }),
     }
   )
-  // .get("/give", async () => {
-  //   return await auth.api.signUpEmail({
-  //     asResponse: true,
-  //     body: {
-  //       email: "admin@matiix310.dev",
-  //       name: "admin",
-  //       password: "password",
-  //       username: "admin",
-  //     },
-  //   });
-  // })
   .all("/*", betterAuthView);

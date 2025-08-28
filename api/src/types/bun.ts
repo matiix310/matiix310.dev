@@ -7,5 +7,6 @@ declare module "bun" {
     LOGS_FOLDER?: string;
     BASE_FOLDER?: string;
     BACKEND_BASE_FOLDER?: string;
+    DEFAULT_ADMIN_PASSWORD?: string;
   }
 }

@@ -13,7 +13,7 @@ import { db } from "@db/index";
 import { eq, or } from "drizzle-orm";
 import { avalonVault } from "@db/schema/avalonVault";
 
-import { avalonVaultEntry } from "./vault/index";
+import { avalonSelectVaultEntrySchema } from "./vault/index";
 
 export default new Elysia({
   name: "Avalon Route",
@@ -71,13 +71,7 @@ export default new Elysia({
       response: {
         200: t.Union([
           t.Literal("OK"),
-          t.Array(
-            t.Object({
-              id: avalonVaultEntry.properties.id,
-              kind: avalonVaultEntry.properties.kind,
-              content: t.String(),
-            })
-          ),
+          t.Array(t.Pick(avalonSelectVaultEntrySchema, ["id", "kind", "content"])),
         ]),
         401: t.Union([t.Literal("Unauthorized")]),
       },
@@ -119,13 +113,7 @@ export default new Elysia({
         hostname: t.String(),
       }),
       response: {
-        200: t.Array(
-          t.Object({
-            id: avalonVaultEntry.properties.id,
-            uriRegex: avalonVaultEntry.properties.uriRegex,
-            kind: avalonVaultEntry.properties.kind,
-          })
-        ),
+        200: t.Array(t.Pick(avalonSelectVaultEntrySchema, ["id", "uriRegex", "kind"])),
       },
     }
   );

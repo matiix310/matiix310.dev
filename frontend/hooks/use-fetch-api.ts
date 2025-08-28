@@ -3,7 +3,7 @@ import React from "react";
 const fetchApi = (url: string, init?: RequestInit) => {
   if (init === undefined) init = {};
   if (!("credentials" in init)) init.credentials = "include";
-  return fetch(process.env.NEXT_PUBLIC_API_URI + url, init);
+  return fetch(window.location.origin + "/api/" + url, init);
 };
 
 class Observer {

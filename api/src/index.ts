@@ -13,9 +13,13 @@ import discordSpyRoute from "@controllers/discordSpy";
 import musixRoute from "@controllers/musix";
 import avalonRoute from "@controllers/avalon";
 import authRoute from "@controllers/auth";
+import healthRoute from "@controllers/health";
 
-const serverConfig: { port: number } = {
+import auth from "@libs/auth/auth";
+
+const serverConfig = {
   port: process.env.PORT ?? 8000,
+  development: process.env.NODE_ENV === "development",
 };
 
 export const app = new Elysia({
@@ -69,7 +73,27 @@ export const app = new Elysia({
   .use(musixRoute)
   .use(authRoute)
   .use(avalonRoute)
+  .use(healthRoute)
   .listen({ ...serverConfig, idleTimeout: 60 }, (server) => {
     const logger = new Logger("Start");
     logger.log(`🦊 Elysia is running at ${server.url.href} on port ${server.url.port}`);
+  })
+  .onStart(async () => {
+    // add a default admin
+    try {
+      if (
+        process.env.DEFAULT_ADMIN_PASSWORD !== undefined &&
+        (await auth.api.isUsernameAvailable({ body: { username: "admin" } }))
+      ) {
+        console.log("Creating admin account");
+        auth.api.signUpEmail({
+          body: {
+            email: "admin@matiix310.dev",
+            name: "admin",
+            password: process.env.DEFAULT_ADMIN_PASSWORD,
+            username: "admin",
+          },
+        });
+      }
+    } catch (_) {}
   });

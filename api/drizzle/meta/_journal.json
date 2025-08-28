@@ -15,6 +15,13 @@
       "when": 1756307824300,
       "tag": "0001_breezy_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1756394550025,
+      "tag": "0002_dazzling_boom_boom",
+      "breakpoints": true
     }
   ]
 }

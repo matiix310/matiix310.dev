@@ -1,0 +1,1 @@
+ALTER TABLE `avalon_vault` ADD `secured` boolean DEFAULT false NOT NULL;
