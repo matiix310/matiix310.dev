@@ -97,6 +97,30 @@ export default new Elysia({
       }),
     }
   )
+  .post(
+    "/answer-with-key",
+    ({ body, avalon }) => {
+      return avalon.authorizeSessionWithKey(
+        body.id,
+        body.clientId,
+        body.key,
+        body.answer
+      );
+    },
+    {
+      body: t.Object({
+        id: t.String(),
+        clientId: t.String(),
+        key: t.String(),
+        answer: t.Boolean(),
+        date: t.Number(),
+      }),
+      200: t.Union([
+        t.Object({ error: t.Literal(false), message: t.String() }),
+        t.Object({ error: t.Literal(true) }),
+      ]),
+    }
+  )
   .get(
     "/search/:hostname",
     async ({ params: { hostname } }) => {
@@ -114,6 +138,21 @@ export default new Elysia({
       }),
       response: {
         200: t.Array(t.Pick(avalonSelectVaultEntrySchema, ["id", "uriRegex", "kind"])),
+      },
+    }
+  )
+  .get(
+    "/status",
+    ({ avalon, apiKey }) => {
+      const deviceId = apiKey.metadata!["deviceId"];
+      return avalon.getDeviceOpenedSessions(deviceId);
+    },
+    {
+      checkPermissions: {
+        avalon: ["answer"],
+      },
+      response: {
+        200: t.Array(t.String()),
       },
     }
   );

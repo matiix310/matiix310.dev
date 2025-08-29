@@ -19,7 +19,7 @@ import React from "react";
 export const formSchema = z.object({
   name: z.string().min(2).max(50),
   kind: z.union([z.literal("laptop"), z.literal("computer"), z.literal("phone")]),
-  fcmToken: z.union([z.string().length(20), z.string().length(0)]),
+  fcmToken: z.union([z.string().length(142), z.string().length(0)]),
   clients: z.array(z.string()),
 });
 

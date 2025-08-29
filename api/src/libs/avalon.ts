@@ -8,11 +8,13 @@ import { initializeApp } from "firebase-admin/app";
 import { getMessaging, type Message } from "firebase-admin/messaging";
 import { avalonClients } from "@db/schema/avalonClients";
 import { avalonLogs } from "@db/schema/avalonLogs";
+import { session } from "@db/schema/auth";
+import * as crypto from "node:crypto";
 
 type Session = {
   cb: (authenticated: boolean, reason: string) => void;
   clientId: string;
-  devicesId: string[];
+  devices: { id: string; key?: string }[];
   start: number;
 };
 
@@ -70,7 +72,11 @@ export default class Avalon {
         this.sessions[clientId] = {
           cb,
           clientId,
-          devicesId: devices.map((d) => d.deviceId),
+          devices: devices.map((d) => ({
+            id: d.deviceId,
+            key:
+              d.fcmToken === null ? undefined : crypto.randomBytes(128).toString("hex"),
+          })),
           start: Date.now(),
         };
 
@@ -79,11 +85,15 @@ export default class Avalon {
           if (fcmToken === null) continue;
 
           const message: Message = {
-            data: {
-              clientName: client.name,
-              clientId: clientId,
-            },
             token: fcmToken,
+            android: {
+              priority: "high",
+            },
+            notification: {
+              title: `${clientId} is asking for authorization`,
+              // TODO add scope of the request
+              body: `unknown scope`,
+            },
           };
 
           getMessaging()
@@ -111,29 +121,71 @@ export default class Avalon {
       });
   }
 
-  async authorizeSession(
-    clientId: string,
+  private isSessionValid(
     deviceId: string,
-    authorize: boolean
-  ): CanBeError<{ clientId: string }> {
+    clientId: string
+  ): CanBeError<{ session: Session }> {
     const session = this.sessions[clientId];
     if (!session || Date.now() - session.start > validityTime * 1000)
       return { error: true, message: "No request found" };
 
-    if (!session.devicesId.includes(deviceId))
+    if (session.devices.find((d) => d.id === deviceId) === undefined)
       return { error: true, message: "You are not allowed to answer this request" };
 
+    return { error: false, data: { session } };
+  }
+
+  private async endSession(session: Session, deviceId: string, authorize: boolean) {
     await createLog({
-      clientId,
+      clientId: session.clientId,
       deviceId,
       kind: "answer",
       answer: authorize,
     });
 
-    delete this.sessions[clientId];
+    delete this.sessions[session.clientId];
     session.cb(authorize, "answer of a device");
+  }
+
+  async authorizeSession(
+    clientId: string,
+    deviceId: string,
+    authorize: boolean
+  ): Promise<CanBeError<{ clientId: string }>> {
+    const session = this.isSessionValid(deviceId, clientId);
+
+    if (session.error) return session;
+
+    this.endSession(session.data.session, deviceId, authorize);
 
     return { error: false, data: { clientId } };
+  }
+
+  getDeviceOpenedSessions(deviceId: string) {
+    return Object.entries(this.sessions)
+      .filter(([, session]) => session.devices.find((d) => d.id === deviceId))
+      .map(([clientId]) => clientId);
+  }
+
+  authorizeSessionWithKey(
+    deviceId: string,
+    clientId: string,
+    key: string,
+    authorize: boolean
+  ): CanBeError<undefined> {
+    // find the session
+    const session = this.isSessionValid(deviceId, clientId);
+
+    if (session.error) return session;
+
+    const deviceKey = session.data.session.devices.find((d) => d.id === deviceId)?.key;
+
+    if (deviceKey === undefined || deviceKey !== key)
+      return { error: true, message: "Invalid key" };
+
+    this.endSession(session.data.session, deviceId, authorize);
+
+    return { error: false, data: undefined };
   }
 }
 
